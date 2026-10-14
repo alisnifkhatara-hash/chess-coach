@@ -1,0 +1,2265 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chess Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1b1a18;--bg2:#262421;--panel:#2c2a27;--panel2:#363431;--panel3:#403e3b;--line:#3d3b38;
+  --text:#ecebe9;--muted:#a3a19e;--faint:#77756f;--accent:#81b64c;--accent2:#5d9b2c;--blue:#3d8bd9;
+  --light:#ebecd0;--dark:#739552;--hl-l:#f5f682;--hl-d:#b9ca43;
+  --radius:14px;--shadow:0 6px 24px #0007,0 1px 0 #ffffff08 inset;
+}
+[data-board=brown]{--light:#f0d9b5;--dark:#b58863;--hl-l:#f7ec74;--hl-d:#dac34b}
+[data-board=blue]{--light:#dee3e6;--dark:#8ca2ad;--hl-l:#c3d888;--hl-d:#92b166}
+[data-board=purple]{--light:#efe9f7;--dark:#8b72b8;--hl-l:#f2e58a;--hl-d:#c0a85a}
+[data-board=green]{--light:#ebecd0;--dark:#739552;--hl-l:#f5f682;--hl-d:#b9ca43}
+[data-board=coral]{--light:#f3e2cf;--dark:#d97d64;--hl-l:#f6e27a;--hl-d:#e7b257}
+[data-board=night]{--light:#9aa3b0;--dark:#4b5563;--hl-l:#c7cf7c;--hl-d:#8f9a4e}
+[data-board=green],[data-board=brown],[data-board=blue],[data-board=purple],[data-board=coral],[data-board=night]{--tex:none}
+[data-board=walnut]{--light:#f3d7a88c;--dark:#5a300f80;--hl-l:#f5e46ec0;--hl-d:#c9b13ac0;--tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.09' numOctaves='4' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0.22  0 0 0 0 0.11  0 0 0 0 0.04  2.6 0 0 0 -0.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%239a6534'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E")}
+[data-board=marble]{--light:#ffffff40;--dark:#3d4a5a9e;--hl-l:#f2e9809e;--hl-d:#b9b04e9e;--tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.006' numOctaves='5' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.43  0 0 0 0 0.46  -4 0 0 0 1.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23e7e4df'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E")}
+[data-board=stone]{--light:#e2e4e6b0;--dark:#3c424ab8;--hl-l:#e9e388b8;--hl-d:#9c9a4cb8;--tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.9 0 0 0 -0.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%238a8f95'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E")}
+#board{background-image:var(--tex,none);background-size:cover}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--text);font:15px/1.5 Nunito,system-ui,Segoe UI,sans-serif;
+  background:radial-gradient(1100px 650px at 15% -10%,#3a4b26 0%,transparent 60%),radial-gradient(900px 600px at 105% 0%,#22364a 0%,transparent 55%),
+    radial-gradient(800px 500px at 50% 120%,#3b2a1f 0%,transparent 60%),
+    repeating-conic-gradient(#ffffff05 0 25%,transparent 0 50%) 0 0/56px 56px,var(--bg);background-attachment:fixed}
+button,input,textarea{font:inherit;color:inherit}
+button{background:var(--panel3);border:0;border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:700;
+  box-shadow:0 3px 0 #0005;transition:transform .08s,filter .15s,box-shadow .08s}
+button:hover{filter:brightness(1.15)} button:active{transform:translateY(2px);box-shadow:0 1px 0 #0005}
+button.primary{background:linear-gradient(#95c95c,#7fb04a);color:#fff;box-shadow:0 4px 0 #557d2d;text-shadow:0 1px 1px #0004}
+button.primary:hover{filter:brightness(1.08);box-shadow:0 4px 0 #557d2d,0 0 18px #81b64c66}
+button.primary:active{box-shadow:0 2px 0 #557d2d}
+button.ghost{background:transparent;box-shadow:none;color:var(--muted)} button.ghost:hover{background:var(--panel2);color:var(--text)}
+button:disabled{opacity:.5;cursor:default}
+input,textarea{background:#151413;border:1px solid var(--line);border-radius:10px;padding:8px 12px;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:20;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 20px;
+  background:#151413e6;backdrop-filter:blur(8px);border-bottom:1px solid #ffffff0d}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.02em;margin-right:8px}
+.logo .mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#95c95c,#4e8a22);display:grid;place-items:center;box-shadow:0 3px 10px #81b64c55}
+.logo .mark img{width:30px;height:30px;filter:drop-shadow(0 1px 1px #0006)}
+.logo small{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:-4px}
+.watchbox{display:flex;align-items:center;background:#151413;border:1px solid var(--line);border-radius:12px;padding:3px}
+.watchbox input{border:0;background:transparent;width:170px}
+.watchbox button{padding:6px 14px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:var(--panel);font-size:13px;color:var(--muted);font-weight:700}
+.chip b{color:var(--text)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 #81b64c99;animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px #81b64c00}100%{box-shadow:0 0 0 0 #81b64c00}}
+.chip.off .pulse{background:var(--faint);animation:none}
+.chip.err{color:#ff8a7a} .chip.err .pulse{background:#ff6b5a;animation:none}
+#progress:empty{display:none}
+#progress .bar{width:90px;height:6px;border-radius:3px;background:var(--panel3);overflow:hidden}
+#progress .bar i{display:block;height:100%;background:linear-gradient(90deg,#f7c631,#ffa459);transition:width .3s}
+.grow{flex:1}
+.err{color:#ff8a7a}
+
+/* ---------- layout ---------- */
+main{display:grid;grid-template-columns:250px minmax(0,1fr) 400px;gap:20px;padding:20px;max-width:1560px;margin:auto;align-items:start}
+.card{position:relative;background:linear-gradient(180deg,#312e2bf2,#292724f2);border:1px solid #ffffff0f;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,#ffffff0a,transparent 40%)}
+.card h3 .ico{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;margin-right:8px;font-size:12px;vertical-align:-5px;background:#ffffff12}
+.card h3{margin:0 0 12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+
+/* reviews list */
+#side{position:sticky;top:84px;max-height:calc(100vh - 104px);overflow:auto}
+#list .item{position:relative;padding:10px 12px 10px 16px;border-radius:10px;cursor:pointer;margin-bottom:6px;background:#ffffff05;transition:background .15s,transform .15s}
+#list .item::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:4px;background:var(--faint)}
+#list .item.win::before{background:var(--accent)} #list .item.loss::before{background:#e5533d} #list .item.draw::before{background:#9e9b98}
+#list .item:hover{background:var(--panel2);transform:translateX(2px)} #list .item.on{background:var(--panel3)}
+#list .item .t{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#list .item .s{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:2px}
+.accchip{font-weight:800;color:var(--text);background:var(--panel3);border-radius:6px;padding:0 6px}
+.accchip.hi{background:#81b64c33;color:#b5e08a}.accchip.mid{background:#f7c63133;color:#f7d774}.accchip.lo{background:#e5533d33;color:#ff9c8c}
+#list .item .t{display:flex;align-items:center;gap:8px}
+.rb{flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:900;color:#fff}
+.rb.win{background:#5d9b2c}.rb.loss{background:#c0392b}.rb.draw{background:#6b6966}
+
+/* welcome */
+#welcome{text-align:center;padding:48px 32px}
+#welcome .hero{width:120px;height:120px;margin:0 auto 10px;filter:drop-shadow(0 10px 20px #0008);animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px) rotate(-3deg)}}
+#welcome h2{font-size:34px;font-weight:900;margin:0;letter-spacing:-.02em;background:linear-gradient(90deg,#c8f08f,#81b64c);-webkit-background-clip:text;background-clip:text;color:transparent}
+#welcome .sub{color:var(--muted);margin:6px 0 28px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left}
+.step{background:#ffffff06;border:1px solid #ffffff0a;border-radius:12px;padding:16px}
+.step .n{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:900;display:grid;place-items:center;margin-bottom:8px}
+.step b{display:block;margin-bottom:2px}
+.step span{color:var(--muted);font-size:14px}
+.fair{margin-top:22px;color:var(--faint);font-size:13px}
+
+/* board column */
+.players{display:flex;align-items:center;gap:10px;margin:0 auto;max-width:700px;padding:8px 0 8px 36px}
+.players .av{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4a4744,#2b2926);display:grid;place-items:center;box-shadow:0 2px 6px #0005,inset 0 0 0 1px #ffffff14}
+.players .av img{width:32px;height:32px}
+.players .nm{font-weight:800}
+.players .rt{color:var(--muted);font-weight:700;margin-left:4px}
+.players .ac{margin-left:auto;font-weight:900;padding:4px 10px;border-radius:8px;font-size:15px}
+.players .ac.w{background:#f4f4f2;color:#262421} .players .ac.b{background:#151413;color:#fff;border:1px solid var(--line)}
+.boardwrap{display:flex;gap:10px;justify-content:center}
+#evalbar{width:26px;border-radius:6px;overflow:hidden;background:#3a3835;position:relative;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+#evalbar .w{background:linear-gradient(90deg,#fff,#e6e6e6);transition:height .45s cubic-bezier(.3,.7,.3,1);margin-top:auto}
+#evalbar.flip{flex-direction:column-reverse} #evalbar.flip .w{margin-top:0;margin-bottom:auto}
+#evallabel{position:absolute;left:0;right:0;font-size:10px;text-align:center;font-weight:900;color:#333;bottom:4px}
+#evalbar.flip #evallabel{bottom:auto;top:4px} #evallabel.bl{color:#eee;bottom:auto;top:4px} #evalbar.flip #evallabel.bl{top:auto;bottom:4px}
+#board{position:relative;width:min(100%,664px);aspect-ratio:1;display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);border-radius:8px;overflow:hidden;user-select:none;
+  box-shadow:0 18px 40px #000a,0 0 0 1px #0006}
+.sq{position:relative;transition:background-color .15s}
+.sq.l{background:var(--light)}.sq.d{background:var(--dark)}
+.sq.hl.l{background:var(--hl-l)}.sq.hl.d{background:var(--hl-d)}
+.sq.sel.l{background:var(--hl-l)}.sq.sel.d{background:var(--hl-d)}
+.retrymode .sq{cursor:pointer}
+.pc{width:100%;height:100%;display:block;position:relative;z-index:1;pointer-events:none;-webkit-user-drag:none}
+.coord{position:absolute;font-size:11px;font-weight:900;z-index:0}.sq.l .coord{color:var(--dark)}.sq.d .coord{color:var(--light)}
+.cf{right:4px;bottom:1px}.cr{left:4px;top:2px}
+.badge{position:absolute;top:-10%;right:-10%;width:44%;height:44%;border-radius:50%;z-index:3;display:flex;align-items:center;justify-content:center;font-weight:900;
+  font-size:clamp(10px,1.7vw,16px);color:#fff;box-shadow:0 2px 5px #0009,inset 0 -2px 0 #0003;border:2px solid #fff;
+  animation:pop .35s cubic-bezier(.2,1.6,.4,1) .15s both}
+#arrows{position:absolute;inset:0;pointer-events:none;z-index:2}
+.nav{display:flex;gap:8px;justify-content:center;margin:14px auto 0;max-width:700px;padding-left:36px}
+.nav button{flex:1;max-width:90px;font-size:20px;padding:8px 0}
+.nav button#next{max-width:140px}
+
+/* right panel */
+#right{display:flex;flex-direction:column;gap:16px}
+.paneltitle{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:900;font-size:18px;margin:-4px 0 12px}
+.paneltitle .star{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#a5d46a,#5d9b2c);display:grid;place-items:center;font-size:13px;color:#fff;box-shadow:0 0 12px #81b64c66}
+:is(#coach,#pzcoach){display:flex;gap:12px;align-items:flex-start}
+:is(#coach,#pzcoach) .avatar{flex:none;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#4a4744,#2b2926);display:grid;place-items:center;box-shadow:0 3px 8px #0007;position:relative}
+:is(#coach,#pzcoach) .avatar img{width:46px;height:46px}
+:is(#coach,#pzcoach) .ic{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;color:#fff;border:2px solid #2c2a27;transition:background-color .2s}
+.bubble{position:relative;flex:1;background:#fff;color:#262421;border-radius:14px;padding:12px 14px;font-size:14.5px;box-shadow:0 4px 12px #0006}
+.bubble::before{content:"";position:absolute;left:-7px;top:20px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+.bubble .h{font-weight:900;font-size:15px;display:flex;align-items:center;gap:6px}
+.bubble .h small{color:#8a8783;font-weight:700}
+#coachbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+#coachbtns button{flex:1}
+#graph{width:100%;height:100px;display:block;cursor:pointer;border-radius:10px;background:#3a3835;margin-top:14px}
+.acc{display:grid;grid-template-columns:1.2fr 1fr 34px 1fr;gap:6px 6px;align-items:center;font-size:14px}
+.acc .hd{text-align:center;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc .pav{justify-self:center;width:48px;height:48px;border-radius:10px;background:var(--panel3);display:grid;place-items:center;box-shadow:0 2px 6px #0005}
+.acc .pav.me{box-shadow:0 0 0 3px var(--accent)}
+.acc .pav img{width:38px;height:38px}
+.acc .rl{font-weight:800;color:var(--text)}
+.acc .big{justify-self:center;min-width:72px;text-align:center;font-size:20px;font-weight:900;border-radius:8px;padding:4px 8px}
+.acc .big.w{background:#fff;color:#262421} .acc .big.b{background:#151413;border:1px solid var(--line)}
+.acc .cc{text-align:center;color:var(--muted);font-weight:700}
+.acc .n{text-align:center;font-weight:900;font-size:15px}
+.acc .sep{grid-column:1/-1;height:1px;background:var(--line);margin:6px 0}
+.acc .note{grid-column:1/-1;text-align:center;font-size:12px;color:var(--faint)}
+.dot{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;box-shadow:inset 0 -2px 0 #0003;flex:none}
+.acc .dot{justify-self:center}
+.phase{display:grid;grid-template-columns:1.2fr 1fr 1fr;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.phase:last-child{border:0}
+.phase .v{display:flex;gap:6px;align-items:center;justify-content:center;font-weight:800}
+#moves{max-height:300px;overflow:auto;font-size:14px;border-radius:10px}
+#moves .row{display:grid;grid-template-columns:40px 1fr 1fr}
+#moves .row:nth-child(odd){background:#ffffff05}
+#moves .mv{padding:4px 8px;border-radius:6px;cursor:pointer;display:flex;gap:6px;align-items:center;font-weight:700;transition:background .12s}
+#moves .mv .dot{width:18px;height:18px;font-size:9px}
+#moves .mv:hover{background:var(--panel3)}#moves .mv.on{background:#4f6b37;color:#fff}
+#moves .num{color:var(--faint);padding:4px 8px;font-weight:700}
+
+/* dialogs */
+dialog{background:var(--panel);color:var(--text);border:0;border-radius:18px;width:min(580px,92vw);box-shadow:0 30px 80px #000c;padding:22px}
+dialog::backdrop{background:#000a;backdrop-filter:blur(3px)}
+dialog h3{margin:0 0 6px;font-size:20px;font-weight:900}
+dialog[open]{animation:dlg .2s ease}
+@keyframes dlg{from{opacity:0;transform:translateY(10px) scale(.97)}}
+.dlgbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+#recentbox{max-height:60vh;overflow:auto}
+#recentbox .g{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 6px;border-bottom:1px solid var(--line);font-size:14px}
+.res{font-weight:900;text-transform:uppercase;font-size:12px;padding:2px 8px;border-radius:6px}
+.res.win{background:#81b64c33;color:#a7d878}.res.loss{background:#e5533d33;color:#ff8a7a}.res.draw{background:#ffffff1a;color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:8px 0 18px}
+.opt{border:2px solid transparent;background:var(--panel2);border-radius:12px;padding:10px;cursor:pointer;text-align:center;font-weight:800;transition:border-color .15s,transform .15s}
+.opt:hover{transform:translateY(-2px)} .opt.on{border-color:var(--accent)}
+.opt .pv{display:flex;justify-content:center;gap:2px;margin-bottom:6px}
+.opt .pv img{width:44px;height:44px}
+.opt .sw{display:grid;grid-template-columns:repeat(4,1fr);width:88px;height:44px;margin:0 auto 6px;border-radius:6px;overflow:hidden;background-image:var(--tex,none);background-size:240px}
+.opt .sw i:nth-child(odd){background:var(--l)} .opt .sw i:nth-child(even){background:var(--d)}
+.opt .sw i:nth-child(n+5):nth-child(odd){background:var(--d)} .opt .sw i:nth-child(n+5):nth-child(even){background:var(--l)}
+
+/* play mode */
+.sq.tgt::after{content:"";position:absolute;inset:34%;border-radius:50%;background:#00000024;z-index:2;pointer-events:none}
+.sq.cap::after{content:"";position:absolute;inset:0;border-radius:50%;border:calc(var(--sqsize,70px) * .09) solid #00000024;z-index:2;pointer-events:none}
+.sq.chk{background:radial-gradient(circle,#ff3b30 0%,#e5533dcc 35%,transparent 75%),var(--sqbg) !important}
+.sq.l{--sqbg:var(--light)} .sq.d{--sqbg:var(--dark)}
+.playmode .sq,.retrymode .sq{cursor:pointer}
+#board{touch-action:none}
+.dragpc{position:fixed;pointer-events:none;z-index:1000;filter:drop-shadow(0 10px 12px #0009);transform:scale(1.12);transition:transform .1s}
+.pc.lifted{opacity:.35}
+.sq.over{box-shadow:inset 0 0 0 4px #ffffffcc}
+#playpanel .card{display:flex;flex-direction:column;max-height:calc(100vh - 110px)}
+#chat{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px 4px 0;min-height:200px}
+.msg{display:flex;gap:10px;align-items:flex-start;animation:slidein .35s ease both}
+.msg .who{flex:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4a4744,#2b2926);display:grid;place-items:center;box-shadow:0 2px 6px #0006}
+.msg .who img{width:28px;height:28px}
+.msg .who.you{background:linear-gradient(135deg,#95c95c,#4e8a22)}
+.msg .txt{flex:1;background:#fff;color:#262421;border-radius:12px;padding:9px 12px;font-size:14px;box-shadow:0 3px 8px #0005;border-left:5px solid #ccc}
+.msg .txt .h{font-weight:900;display:flex;gap:6px;align-items:center;margin-bottom:2px}
+.msg .txt .h .dot{width:18px;height:18px;font-size:9px}
+.msg.sys .txt{background:var(--panel3);color:var(--text);border-left-color:var(--accent);text-align:center}
+.msg .txt button{margin-top:8px;padding:5px 10px;font-size:13px}
+.typing span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:#999;animation:typing 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes typing{50%{transform:translateY(-4px);opacity:.4}}
+#playbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+#playbtns button{padding:9px 6px}
+#playbtns .wide{grid-column:1/-1}
+#playbtns.two{grid-template-columns:1fr 1fr}
+.lvlname{font-weight:900;color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent);padding:0;border:0;background:none}
+.check{display:flex;gap:8px;align-items:center;margin-top:12px;color:var(--muted);cursor:pointer}
+.check input{accent-color:var(--accent);width:18px;height:18px}
+#evalbar.hide{visibility:hidden}
+#tips{margin-top:12px;background:#ffffff08;border:1px solid #3d8bd955;border-radius:12px;padding:10px}
+#tips .tt{font-size:12px;font-weight:800;color:#8fc0f0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+#tips .tip{display:flex;gap:10px;align-items:flex-start;padding:7px 8px;border-radius:8px;cursor:pointer;transition:background .12s}
+#tips .tip:hover{background:#3d8bd933}
+#tips .tip .mv{flex:none;min-width:58px;text-align:center;font-weight:900;background:#3d8bd9;color:#fff;border-radius:6px;padding:2px 6px}
+#tips .tip.alt .mv{background:#3d8bd988}
+#tips .tip small{display:block;color:var(--muted);font-weight:800;font-size:11px;text-transform:uppercase}
+#tips .tip span{font-size:13.5px}
+
+/* clocks */
+.clock{margin-left:auto;font-variant-numeric:tabular-nums;font-size:20px;font-weight:900;padding:4px 14px;border-radius:8px;background:#151413;color:#77756f;min-width:96px;text-align:right;transition:background .2s,color .2s}
+.clock.run{background:#f4f4f2;color:#262421}
+.clock.low.run{background:#e5533d;color:#fff}
+.tcopts{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+.tcopts button{flex:1;min-width:64px;padding:7px 6px;border:2px solid transparent}
+.tcopts button.on{border-color:var(--accent)}
+
+/* nav tabs */
+.tabs{display:flex;gap:4px;background:#0f0e0d;border-radius:12px;padding:4px}
+.tabs button{background:transparent;box-shadow:none;color:var(--muted);padding:7px 12px;border-radius:9px;white-space:nowrap}
+.tabs button:hover{background:var(--panel2);color:var(--text);filter:none}
+.tabs button.on{background:linear-gradient(180deg,#8cc152,#5d9b2c);color:#fff;box-shadow:0 2px 10px #81b64c55,0 2px 0 #3f6d1c;text-shadow:0 1px 1px #0005}
+.sidebtns{display:flex;gap:6px;margin:-4px 0 12px}
+.sidebtns button{flex:1;font-size:13px;padding:6px 8px}
+
+/* puzzles */
+.pzstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.pzstat{background:#ffffff08;border-radius:10px;padding:8px 4px;text-align:center}
+.pzstat b{display:block;font-size:22px;font-weight:900;line-height:1.1}
+.pzstat span{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+#pzbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+#pzbtns button{flex:1}
+.pzdone{text-align:center;padding:30px 10px}
+.pzdone .big{font-size:56px}
+
+/* progress page */
+#statsview{grid-column:2/-1;display:flex;flex-direction:column;gap:16px}
+.tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.tile{position:relative;overflow:hidden;transition:transform .15s}
+.tile:hover{transform:translateY(-2px)}
+.tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tc,#81b64c)}
+.tile .ic{position:absolute;right:12px;top:10px;font-size:22px;opacity:.9}
+.tile .l{padding-right:30px}
+.hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:20px;background:linear-gradient(120deg,#3b5323e6,#2c2a27f2 45%,#23364ae6)}
+.hero .pav{width:76px;height:76px;border-radius:18px;background:linear-gradient(135deg,#a5d46a,#3d6b1c);display:grid;place-items:center;font-size:36px;font-weight:900;color:#fff;box-shadow:0 6px 18px #0008;overflow:hidden;flex:none}
+.hero .pav img{width:100%;height:100%;object-fit:cover}
+.hero .who b{display:block;font-size:26px;font-weight:900;line-height:1.1}
+.hero .who span{color:#c8c6c2;font-size:13px;font-weight:700}
+.hero .badge2{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:6px;background:#f7c63133;color:#f7d774;font-size:11px;font-weight:900;text-transform:uppercase;vertical-align:4px}
+.rchips{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.rchip{background:#0000004d;border:1px solid #ffffff14;border-radius:12px;padding:8px 14px;min-width:110px}
+.rchip .k{font-size:11px;color:#c8c6c2;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.rchip .v{font-size:24px;font-weight:900;line-height:1.1}
+.rchip .s{font-size:12px;color:#c8c6c2;font-weight:700}
+.insights{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ins{display:flex;gap:12px;align-items:flex-start;background:#ffffff08;border-radius:12px;padding:12px 14px;border-left:4px solid var(--ic,#3d8bd9)}
+.ins .e{font-size:22px;line-height:1}
+.ins div{font-size:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.qbar{display:flex;height:22px;border-radius:6px;overflow:hidden;gap:2px;margin:6px 0 14px}
+.qbar i{display:block;height:100%}
+.qlist{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:13.5px}
+.qlist div{display:flex;align-items:center;gap:8px}
+.qlist .dot{width:18px;height:18px;font-size:9px}
+.qlist b{margin-left:auto}
+.qlist small{color:var(--muted);width:42px;text-align:right}
+.rows .r{display:grid;grid-template-columns:90px 1fr 46px;gap:10px;align-items:center;margin:8px 0;font-size:14px}
+.rows .r .bar{height:16px;border-radius:4px;background:#ffffff0d;overflow:hidden;display:flex;gap:2px}
+.rows .r .bar i{display:block;height:100%}
+.rows .r b{text-align:right}
+.rows .r img{width:26px;height:26px;vertical-align:middle;margin-right:6px}
+.gcard{cursor:pointer;transition:transform .15s}
+.gcard:hover{transform:translateY(-2px)}
+.gcard .big{font-size:34px;font-weight:900}
+.small-legend{display:flex;gap:14px;font-size:12px;color:var(--muted);font-weight:700;margin-top:4px;flex-wrap:wrap}
+.small-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tile{background:linear-gradient(180deg,#2f2d2a,#2a2825);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px}
+.tile .l{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.tile .v{font-size:30px;font-weight:900;line-height:1.2}
+.tile .d{font-size:13px;color:var(--muted);font-weight:700}
+.tile .d .up,.week .up{color:#a7d878}.tile .d .down,.week .down{color:#ff8a7a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:#ffffff14;stroke-width:1}
+.chart .axis text{fill:#9e9b98;font-size:11px;font-family:inherit;font-weight:700}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);font-weight:700;margin:-4px 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.vtip{position:absolute;pointer-events:none;background:#151413;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;box-shadow:0 8px 20px #0009;white-space:nowrap;z-index:5;opacity:0;transition:opacity .1s}
+.vtip b{display:block}
+.vtip .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+table.op{width:100%;border-collapse:collapse;font-size:14px}
+table.op th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:6px 8px;border-bottom:1px solid var(--line)}
+table.op td{padding:7px 8px;border-bottom:1px solid #ffffff0a}
+table.op td.n{text-align:right;font-weight:800}
+.empty{color:var(--muted);text-align:center;padding:40px}
+
+/* promotion picker */
+.promo{position:absolute;z-index:20;width:12.5%;display:flex;flex-direction:column;box-shadow:0 8px 24px #000a;border-radius:6px;overflow:hidden;animation:pop .15s ease}
+.promo.up{flex-direction:column-reverse}
+.promo button{aspect-ratio:1;padding:0;border-radius:0;background:#f4f4f2;box-shadow:none}
+.promo button:hover{background:#ffe08a;filter:none}
+.promo button img{width:100%;height:100%;display:block}
+.promoveil{position:absolute;inset:0;z-index:19;background:#0006}
+
+/* motif chips */
+.mchips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
+.mchip{display:inline-flex;gap:5px;align-items:center;font-size:12px;font-weight:900;padding:2px 9px;border-radius:999px;background:#3d8bd922;color:#2a6db3}
+.mchip.bad{background:#e5533d22;color:#c0392b}
+.mchip.good{background:#81b64c2e;color:#4d8a1f}
+.dark .mchip{color:#8fc0f0}
+#pzthemes{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+#pzthemes button{padding:4px 10px;font-size:12.5px;border:2px solid transparent}
+#pzthemes button.on{border-color:var(--accent)}
+
+/* training */
+.seg{display:flex;background:#0f0e0d;border-radius:10px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;background:transparent;box-shadow:none;color:var(--muted)}
+.seg button.on{background:var(--panel3);color:var(--text)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+select{font:inherit;color:inherit;background:#151413;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.trstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.drill{display:flex;gap:12px;align-items:center;background:#ffffff08;border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.drill .di{font-size:26px;flex:none;width:36px;text-align:center}
+.drill b{display:block}
+.drill span{font-size:13px;color:var(--muted)}
+.drill button{margin-left:auto;flex:none}
+.drill.ok{outline:2px solid #81b64c55}
+.week{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.week div{background:#ffffff08;border-radius:12px;padding:10px 12px}
+.week b{display:block;font-size:22px;font-weight:900}
+.week span{font-size:12px;color:var(--muted);font-weight:700}
+
+/* animations */
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.fade{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}}
+#board.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+#board.glow{animation:glow .9s}
+@keyframes glow{30%{box-shadow:0 0 0 6px #81b64c,0 0 40px #81b64c}}
+.slidein{animation:slidein .4s ease both}
+@keyframes slidein{from{opacity:0;transform:translateY(12px)}}
+
+@media(max-width:1500px){.logo>div:last-child{display:none}.logo{margin-right:0}header{gap:10px}}
+@media(max-width:1380px){#watchtxt{display:none}.watchbox input{width:130px}}
+@media(max-width:1200px){main{grid-template-columns:1fr 380px}#side{grid-column:1/-1;position:static;max-height:none;order:3}#statsview{grid-column:1/-1}.tiles{grid-template-columns:repeat(3,1fr)}.grid2,.grid3,.insights{grid-template-columns:1fr}}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:12px}.steps{grid-template-columns:1fr}.players,.nav{padding-left:0}}
+</style></head><body>
+<header>
+  <div class="logo"><div class="mark"><img id="logoimg" alt=""></div><div>Chess Coach<small data-i18n="Game Review">Game Review</small></div></div>
+  <nav class="tabs">
+    <button id="reviewtab" data-i18n="📊 Review">📊 Review</button>
+    <button id="playbtn" data-i18n="♟ Play">♟ Play</button>
+    <button id="practicebtn" data-i18n="🧠 Practice">🧠 Practice</button>
+    <button id="trainbtn" data-i18n="🎓 Training">🎓 Training</button>
+    <button id="puzzlebtn" data-i18n="🧩 Puzzles">🧩 Puzzles</button>
+    <button id="statsbtn" data-i18n="📈 Progress">📈 Progress</button>
+  </nav>
+  <span class="grow"></span>
+  <span id="progress" class="chip"></span>
+  <div class="watchbox"><input id="user" placeholder="chess.com username" data-i18n-ph="chess.com username"><button id="saveuser" class="primary" data-i18n="Watch">Watch</button></div>
+  <span id="watch" class="chip off"><span class="pulse"></span><span id="watchtxt"></span></span>
+  <button id="langbtn" class="ghost" title="Language / Sprache">🌐 EN</button>
+  <button id="settingsbtn" class="ghost" title="Board & pieces" data-i18n-title="Board & pieces">⚙️</button>
+  <button id="mute" class="ghost" title="Sound on/off" data-i18n-title="Sound on/off">🔊</button>
+</header>
+<main>
+  <div id="side" class="card"><h3 data-i18n="Your reviews">Your reviews</h3>
+    <div class="sidebtns"><button id="recentbtn" data-i18n="📋 Recent games">📋 Recent games</button><button id="pgnbtn" data-i18n="📥 PGN">📥 PGN</button></div>
+    <div id="list"></div></div>
+  <div id="center">
+    <div id="welcome" class="card slidein">
+      <img class="hero" id="heroimg" alt="">
+      <h2 data-i18n="Your personal chess coach">Your personal chess coach</h2>
+      <p class="sub" data-i18n="Play on chess.com – get a full game review the moment your game ends.">Play on chess.com – get a full game review the moment your game ends.</p>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><b data-i18n="Enter your username">Enter your username</b><span data-i18n-html="Type it at the top and click &lt;b&gt;Watch&lt;/b&gt;.">Type it at the top and click <b>Watch</b>.</span></div>
+        <div class="step"><div class="n">2</div><b data-i18n="Play as usual">Play as usual</b><span data-i18n-html="The coach notices when a game is over.">The coach notices when a game is over.</span></div>
+        <div class="step"><div class="n">3</div><b data-i18n="Learn from it">Learn from it</b><span data-i18n-html="Your review opens by itself – retry your mistakes!">Your review opens by itself – retry your mistakes!</span></div>
+      </div>
+      <p class="fair" data-i18n="🔒 Fair play: the coach never helps during a game – only finished games are reviewed.">🔒 Fair play: the coach never helps during a game – only finished games are reviewed.</p>
+    </div>
+    <div id="review" hidden>
+      <div class="players" id="ptop"></div>
+      <div class="boardwrap"><div id="evalbar"><div class="w"></div><div id="evallabel"></div></div><div id="board"></div></div>
+      <div class="players" id="pbot"></div>
+      <div class="nav"><button id="first" title="Start" data-i18n-title="Start">⏮</button><button id="prev" title="Back" data-i18n-title="Back">◀</button><button id="next" class="primary" title="Next" data-i18n-title="Next">▶</button><button id="last" title="End" data-i18n-title="End">⏭</button><button id="flip" title="Flip board" data-i18n-title="Flip board">⇅</button></div>
+    </div>
+  </div>
+  <div id="right" hidden>
+    <div class="card slidein">
+      <div class="paneltitle"><span class="star">★</span><span data-i18n="Game Review">Game Review</span></div>
+      <div id="coach"><div class="avatar"><img id="coachimg" alt=""><div class="ic" id="coachic"></div></div><div class="bubble" id="coachtext"></div></div>
+      <div id="coachbtns"></div>
+      <svg id="graph" viewBox="0 0 600 100" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="card slidein"><div class="acc" id="acc"></div></div>
+    <div class="card slidein"><h3 data-i18n="Game phases">Game phases</h3><div id="phases"></div></div>
+    <div class="card slidein"><h3 data-i18n="Moves">Moves</h3><div id="moves"></div></div>
+  </div>
+  <div id="puzzlepanel" hidden>
+    <div class="card slidein">
+      <div class="paneltitle"><span class="star">🧩</span><span data-i18n="Puzzles from your games">Puzzles from your games</span></div>
+      <div class="pzstats" id="pzstats"></div>
+      <div id="pzthemes"></div>
+      <div id="pzbody">
+        <div id="pzcoach"><div class="avatar"><img class="coachav" alt=""><div class="ic" id="pzic"></div></div><div class="bubble" id="pztext"></div></div>
+        <div id="pzbtns"></div>
+      </div>
+    </div>
+  </div>
+  <div id="statsview" hidden></div>
+  <div id="trainpanel" hidden>
+    <div class="card slidein">
+      <div class="paneltitle"><span class="star">🎓</span><span data-i18n="Training">Training</span></div>
+      <div class="seg"><button id="segopen" class="on" data-i18n="📖 Openings">📖 Openings</button><button id="segend" data-i18n="🏁 Endgames">🏁 Endgames</button></div>
+      <div id="trainbody"></div>
+    </div>
+  </div>
+  <div id="playpanel" hidden>
+    <div class="card slidein">
+      <div class="paneltitle"><span class="star">♟</span><span id="playtitle">Play vs Coach</span></div>
+      <div id="chat"></div>
+      <div id="tips" hidden></div>
+      <div id="playbtns">
+        <button id="hintbtn" data-i18n="💡 Hint">💡 Hint</button><button id="undobtn">↶ Take back</button><button id="resignbtn" data-i18n="🏳 Resign">🏳 Resign</button>
+        <button id="pflipbtn" hidden data-i18n="⇅ Flip board">⇅ Flip board</button>
+        <button id="newgamebtn" class="primary wide" data-i18n="New game">New game</button>
+      </div>
+    </div>
+  </div>
+</main>
+<dialog id="pgndlg"><h3 data-i18n="Paste a PGN">Paste a PGN</h3>
+  <p style="color:var(--muted);font-size:14px;margin-top:0" data-i18n="On chess.com: open a finished game → Share → PGN → Copy.">On chess.com: open a finished game → Share → PGN → Copy.</p>
+  <textarea id="pgntext" rows="10" style="width:100%"></textarea>
+  <p id="pgnerr" class="err"></p>
+  <div class="dlgbtns"><button class="ghost" onclick="pgndlg.close()" data-i18n="Cancel">Cancel</button><button class="primary" id="pgngo" data-i18n="Review">Review</button></div>
+</dialog>
+<dialog id="recentdlg"><h3 data-i18n="Recent games">Recent games</h3><div id="recentbox"></div>
+  <div class="dlgbtns"><button onclick="recentdlg.close()" data-i18n="Close">Close</button></div></dialog>
+<dialog id="newdlg"><h3 data-i18n="Play vs Coach">Play vs Coach</h3>
+  <p style="color:var(--muted);margin:0" data-i18n="Play as">Play as</p>
+  <div class="opts" id="coloropts"></div>
+  <p style="color:var(--muted);margin:0 0 6px"><span data-i18n="Coach strength:">Coach strength:</span> <span class="lvlname" id="lvlname"></span></p>
+  <input type="range" id="lvl" min="1" max="7" value="1">
+  <p style="color:var(--muted);margin:12px 0 0"><span data-i18n="Time control">Time control</span></p>
+  <div class="tcopts" id="tcopts"></div>
+  <label class="check"><input type="checkbox" id="showeval"> <span data-i18n="Show the evaluation bar while playing">Show the evaluation bar while playing</span></label>
+  <div class="dlgbtns"><button class="ghost" onclick="newdlg.close()" data-i18n="Cancel">Cancel</button><button class="primary" id="startgame" data-i18n="Start game">Start game</button></div>
+</dialog>
+<dialog id="setdlg"><h3 data-i18n="Board & pieces">Board &amp; pieces</h3>
+  <p style="color:var(--muted);margin:0" data-i18n="Pieces">Pieces</p><div class="opts" id="pieceopts"></div>
+  <p style="color:var(--muted);margin:0" data-i18n="Board">Board</p><div class="opts" id="boardopts"></div>
+  <p style="color:var(--muted);margin:0" data-i18n="Analysis depth">Analysis depth</p><div class="tcopts" id="thinkopts"></div>
+  <label class="check" style="margin-top:14px"><input type="checkbox" id="lanbox"> <span data-i18n="Allow access from my phone (home WiFi)">Allow access from my phone (home WiFi)</span></label>
+  <p id="lanurl" style="color:var(--muted);font-size:13px;margin:4px 0 8px 26px"></p>
+  <p style="color:var(--faint);font-size:12px;margin:0" data-i18n="Thorough is more exact but takes longer. It applies to new analyses.">Thorough is more exact but takes longer. It applies to new analyses.</p>
+  <div class="dlgbtns"><button class="primary" onclick="setdlg.close()" data-i18n="Done">Done</button></div></dialog>
+<script>
+const PIECESETS = /*PIECES*/;
+const BOARDS = {green: ['#ebecd0', '#739552', 'Green'], brown: ['#f0d9b5', '#b58863', 'Wood'], blue: ['#dee3e6', '#8ca2ad', 'Blue'],
+  purple: ['#efe9f7', '#8b72b8', 'Purple'], coral: ['#f3e2cf', '#d97d64', 'Coral'], night: ['#9aa3b0', '#4b5563', 'Night'],
+  walnut: ['', '', 'Walnut'], marble: ['', '', 'Marble'], stone: ['', '', 'Stone']};
+const CLS = {
+  brilliant:{s:'!!',c:'#1baca6',n:'Brilliant'}, great:{s:'!',c:'#5c8bb0',n:'Great'},
+  best:{s:'★',c:'#81b64c',n:'Best'}, excellent:{s:'👍',c:'#81b64c',n:'Excellent'},
+  good:{s:'✓',c:'#95b776',n:'Good'}, book:{s:'📖',c:'#a88865',n:'Book'},
+  inaccuracy:{s:'?!',c:'#f7c631',n:'Inaccuracy'}, mistake:{s:'?',c:'#ffa459',n:'Mistake'},
+  miss:{s:'✗',c:'#ff7769',n:'Miss'}, blunder:{s:'??',c:'#fa412d',n:'Blunder'}};
+const VERDICT = {brilliant: 'brilliant!!', great: 'a great move!', best: 'the best move', excellent: 'excellent', good: 'good',
+  book: 'a book move', inaccuracy: 'an inaccuracy', mistake: 'a mistake', miss: 'a miss', blunder: 'a blunder'};
+const BAD = ['inaccuracy','mistake','blunder','miss'];
+const $ = id => document.getElementById(id);
+let lineView = null, wantBusy = false;
+let mode = 'welcome', P = null, busy = false, hintArrow = null, showEval = false, wantReview = null, chatSeen = 0;
+let R = null, cur = 0, flipped = false, retry = null, sel = null, lastNew = null, firstState = true;
+
+// ---------- language ----------
+let lang = 'en';
+lang = (navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en';
+try { lang = localStorage.getItem('coach-lang') || lang; } catch (e) {}
+const I18N = {de: {
+"Game Review": "Partieanalyse",
+"📊 Review": "📊 Analyse",
+"♟ Play": "♟ Spielen",
+"🧠 Practice": "🧠 Üben",
+"🧩 Puzzles": "🧩 Puzzles",
+"📈 Progress": "📈 Fortschritt",
+"Watch": "Beobachten",
+"chess.com username": "chess.com-Name",
+"Not watching": "Beobachtet niemanden",
+"Can't reach chess.com": "chess.com nicht erreichbar",
+"Watching <b>{u}</b>": "Beobachte <b>{u}</b>",
+"Finished games are reviewed automatically": "Beendete Partien werden automatisch analysiert",
+"Analyzing": "Analysiere",
+"Allow access from my phone (home WiFi)": "Zugriff vom Handy erlauben (Heim-WLAN)", "Restart the coach (Start Chess Coach) to switch this on.": "Starte den Coach neu (Start Chess Coach), damit das wirkt.", "On your phone, open: <b>{u}</b>": "Am Handy öffnen: <b>{u}</b>", "Restart the coach to switch this off.": "Starte den Coach neu, damit das ausgeschaltet wird.",
+"Go!": "Los!",
+"🎓 Training": "🎓 Training", "Training": "Training", "📖 Openings": "📖 Eröffnungen", "🏁 Endgames": "🏁 Endspiele", "Analysis depth": "Analyse-Stärke", "Thorough is more exact but takes longer. It applies to new analyses.": "Gründlich ist genauer, dauert aber länger. Gilt für neue Analysen.", "Fast": "Schnell", "Normal": "Normal", "Thorough": "Gründlich", "Fork": "Gabel", "Pin": "Fesselung", "Skewer": "Spieß", "Discovered attack": "Abzugsangriff", "Double check": "Doppelschach", "Back-rank mate": "Grundreihenmatt", "Free piece": "Freie Figur", "Promotion": "Umwandlung", "allowed": "zugelassen", "missed": "verpasst", "▶ Show best line": "▶ Beste Fortsetzung", "▶ What happens now?": "▶ Was passiert jetzt?", "Best line": "Beste Fortsetzung", "The punishment": "So wird es bestraft", "⏹ Back to the game": "⏹ Zurück zur Partie", "↺ Replay": "↺ Nochmal", "🔄 Analyze again": "🔄 Neu analysieren", "Analyzing again…": "Wird neu analysiert…", "The review reopens by itself when it is done.": "Die Analyse öffnet sich wieder, sobald sie fertig ist.", "All": "Alle", "Theme": "Motiv", "Endgame drill": "Endspiel-Übung", "Solved! Well done.": "Gelöst! Gut gemacht.", "Not solved this time.": "Diesmal nicht gelöst.", "↻ Try again": "↻ Nochmal", "Other endgames": "Andere Endspiele", "you: {n}×": "du: {n}×", "Learn the first moves of an opening. I play the other side with real opening-book moves – you have to find the right moves.": "Lerne die ersten Züge einer Eröffnung. Ich spiele die Gegenseite mit echten Buchzügen – du musst die richtigen Züge finden.", "Popular": "Beliebt", "All openings": "Alle Eröffnungen", "Start training": "Training starten", "Line complete!": "Variante geschafft!", "Find the next move in the {name}": "Finde den nächsten Zug: {name}", "You know this line up to move {n}. Correct: {c}, mistakes: {w}.": "Du kennst diese Variante bis Zug {n}. Richtig: {c}, Fehler: {w}.", "I played <b>{san}</b>. Your move!": "Ich habe <b>{san}</b> gespielt. Du bist dran!", "Your move!": "Du bist dran!", "Move": "Zug", "Correct": "Richtig", "Hint": "Tipp", "Restart": "Neu starten", "Other opening": "Andere Eröffnung", "Not in this line.": "Nicht in dieser Variante.", "In the {name} the move here is <b>{san}</b>. Try it!": "In dieser Eröffnung ({name}) kommt hier <b>{san}</b>. Probier's!", "correct!": "richtig!", "I answer <b>{san}</b>. Your move!": "Ich antworte mit <b>{san}</b>. Du bist dran!", "Practice the most important basic endgames against the strongest coach level.": "Übe die wichtigsten Grund-Endspiele gegen die stärkste Coach-Stufe.", "Goal: checkmate": "Ziel: Schachmatt", "Goal: promote the pawn": "Ziel: Bauer umwandeln", "Goal: hold the draw": "Ziel: Remis halten", "Checkmate with the queen": "Matt mit der Dame", "Checkmate with the rook": "Matt mit dem Turm", "Ladder mate with two rooks": "Treppenmatt mit zwei Türmen", "Promote the pawn": "Bauer umwandeln", "Hold the draw": "Remis halten", "Use the queen to push the enemy king to the edge – stay a knight's move away from it. Then bring your own king closer and give mate. Careful: don't stalemate!": "Drück den gegnerischen König mit der Dame an den Rand – bleib einen Springerzug von ihm entfernt. Dann hol deinen König heran und setz matt. Vorsicht: kein Patt!", "Cut the king off with your rook, then walk your king towards it. Give check only when the kings stand opposite each other.": "Schneide den König mit dem Turm ab und lauf mit deinem König heran. Gib nur Schach, wenn sich die Könige gegenüberstehen.", "The rooks take turns: one cuts off a rank, the other gives check on the next rank. Keep them far away from the king.": "Die Türme wechseln sich ab: Einer sperrt eine Reihe, der andere gibt auf der nächsten Schach. Halte sie weit weg vom König.", "Your king stands in front of the pawn – use the opposition to push the enemy king aside, then escort the pawn.": "Dein König steht vor dem Bauern – nutze die Opposition, um den gegnerischen König wegzudrücken, und begleite dann den Bauern.", "Stay directly in front of the pawn and take the opposition when the enemy king comes close. Then it's a draw.": "Bleib direkt vor dem Bauern und nimm die Opposition, wenn der gegnerische König kommt. Dann ist es remis.", "This week": "Diese Woche", "compared to last week": "im Vergleich zur Vorwoche", "No games this week yet – play one!": "Diese Woche noch keine Partie – spiel eine!", "Blunders / game": "Patzer / Partie", "Best game": "Beste Partie", "promotion": "Umwandlung", "This game cannot be analyzed again.": "Diese Partie kann nicht neu analysiert werden.", "Unknown opening.": "Unbekannte Eröffnung.",
+"W_short": "S", "L_short": "N", "D_short": "R", "Win rate": "Siegquote", "{n} games": "{n} Partien", "Best accuracy": "Beste Genauigkeit", "Win streak": "Siegesserie", "wins in a row": "Siege in Folge", "Win the next game!": "Gewinn die nächste Partie!", "Coach tips from your games": "Coach-Tipps aus deinen Partien", "Rating": "Wertung", "Move quality": "Zugqualität", "When do your mistakes happen?": "Wann passieren deine Fehler?", "White vs. Black": "Weiß vs. Schwarz", "How your games end": "Wie deine Partien enden", "Mistakes by piece": "Fehler nach Figur", "Your best game": "Deine beste Partie", "Most to learn from": "Hier kannst du am meisten lernen", "on chess.com since {d}": "auf chess.com seit {d}", "{n} games reviewed": "{n} Partien analysiert", "best": "best", "solved": "gelöst", "mastered": "gemeistert", "Rapid": "Rapid", "Blitz": "Blitz", "Bullet": "Bullet", "Daily": "Täglich", "Your weakest phase is the <b>{p}</b> ({v}% accuracy). Focus your training there.": "Deine schwächste Phase: <b>{p}</b> ({v}% Genauigkeit). Konzentrier dein Training darauf.", "after move 40": "nach Zug 40", "between moves {a} and {b}": "zwischen Zug {a} und {b}", "{p}% of your mistakes happen <b>{r}</b>. Slow down and check every move there.": "{p}% deiner Fehler passieren <b>{r}</b>. Spiel dort langsamer und prüf jeden Zug.", "<b>{p}%</b> of your mistakes come with less than 30 seconds left. Spend less time early in the game.": "<b>{p}%</b> deiner Fehler passieren mit weniger als 30 Sekunden auf der Uhr. Verbrauch am Anfang weniger Zeit.", "Most of your mistakes are <b>{piece}</b> moves ({n}×). Before moving it, ask: is the square safe?": "Die meisten deiner Fehler sind <b>{piece}</b>-Züge ({n}×). Frag dich vorher: Ist das Zielfeld sicher?", "You win {a}% with White and {b}% with Black – practice more openings as <b>{w}</b>.": "Mit Weiß gewinnst du {a}%, mit Schwarz {b}% – übe mehr Eröffnungen mit <b>{w}</b>.", "You lost <b>{n} games on time</b>. Use the clock more evenly.": "Du hast <b>{n} Partien auf Zeit</b> verloren. Teil dir die Zeit besser ein.", "Play and review a few more games – then I can spot patterns in your play.": "Spiel und analysiere noch ein paar Partien – dann erkenne ich Muster in deinem Spiel.", "{a} of {b} mistakes with less than 30 seconds on the clock": "{a} von {b} Fehlern mit weniger als 30 Sekunden auf der Uhr", "win rate": "Siegquote", "Checkmate": "Schachmatt", "Resignation": "Aufgabe", "On time": "Auf Zeit", "Abandoned": "Abgebrochen", "Other": "Sonstiges", "Pawn": "Bauer", "Knight": "Springer", "Bishop": "Läufer", "Rook": "Turm", "Queen": "Dame", "King": "König", "great moves": "starke Züge", "Not enough rated games yet.": "Noch zu wenige gewertete Partien.",
+"Time control": "Bedenkzeit", "No clock": "ohne Uhr", "on time": "auf Zeit",
+"Coral": "Koralle", "Night": "Nacht", "Walnut": "Nussbaum", "Marble": "Marmor", "Stone": "Stein",
+"Your game review is ready!": "Deine Partieanalyse ist fertig!",
+"Coach server is not running": "Coach-Programm läuft nicht",
+"Board & pieces": "Brett & Figuren",
+"Sound on/off": "Ton an/aus",
+"Your reviews": "Deine Analysen",
+"📋 Recent games": "📋 Letzte Partien",
+"📥 PGN": "📥 PGN",
+"No reviews yet.": "Noch keine Analysen.",
+"Your personal chess coach": "Dein persönlicher Schach-Coach",
+"Play on chess.com – get a full game review the moment your game ends.": "Spiel auf chess.com – und bekomm eine komplette Analyse, sobald deine Partie vorbei ist.",
+"Enter your username": "Benutzernamen eingeben",
+"Play as usual": "Ganz normal spielen",
+"Learn from it": "Daraus lernen",
+"Type it at the top and click <b>Watch</b>.": "Oben eintippen und auf <b>Beobachten</b> klicken.",
+"The coach notices when a game is over.": "Der Coach merkt, wenn eine Partie vorbei ist.",
+"Your review opens by itself – retry your mistakes!": "Deine Analyse öffnet sich von selbst – übe deine Fehler!",
+"🔒 Fair play: the coach never helps during a game – only finished games are reviewed.": "🔒 Fair Play: Der Coach hilft nie während einer Partie – nur beendete Partien werden analysiert.",
+"Start": "Anfang",
+"Back": "Zurück",
+"Next": "Weiter",
+"End": "Ende",
+"Flip board": "Brett drehen",
+"Game phases": "Spielphasen",
+"Moves": "Züge",
+"Game summary": "Zusammenfassung",
+"Go to first mistake": "Zum ersten Fehler",
+"{c} left": "noch {c}",
+"{san} is {verdict}": "{san} ist {verdict}",
+"↻ Retry": "↻ Nochmal versuchen",
+"Next key moment ▶": "Nächster Schlüsselmoment ▶",
+"Find a better move for {side}": "Finde einen besseren Zug für {side}",
+"You played <b>{san}</b>. Drag a piece or click it, then click where it should go.": "Du hast <b>{san}</b> gespielt. Zieh eine Figur oder klick sie an und dann ihr Zielfeld.",
+"Show solution": "Lösung zeigen",
+"The best move was <b>{san}</b>.": "Der beste Zug war <b>{san}</b>.",
+"Back to review": "Zurück zur Analyse",
+"Correct! 🎉": "Richtig! 🎉",
+"That is the best move.": "Das ist der beste Zug.",
+"That is a strong move too.": "Das ist auch ein starker Zug.",
+"Not quite.": "Nicht ganz.",
+"{move} is not the best. Try again!": "{move} ist nicht der beste. Versuch's nochmal!",
+"Try again!": "Versuch's nochmal!",
+"Players": "Spieler",
+"Accuracy": "Genauigkeit",
+"Calibrated to your games (−{n} points)": "Auf deine Partien kalibriert (−{n} Punkte)",
+"Opening": "Eröffnung",
+"Middlegame": "Mittelspiel",
+"Endgame": "Endspiel",
+"Brilliant": "Brillant",
+"Great": "Großartig",
+"Best": "Am besten",
+"Excellent": "Exzellent",
+"Good": "Gut",
+"Book": "Buch",
+"Inaccuracy": "Ungenauigkeit",
+"Mistake": "Fehler",
+"Miss": "Verpasst",
+"Blunder": "Patzer",
+"brilliant!!": "brillant!!",
+"a great move!": "ein großartiger Zug!",
+"the best move": "der beste Zug",
+"excellent": "exzellent",
+"good": "gut",
+"a book move": "ein Buchzug",
+"an inaccuracy": "eine Ungenauigkeit",
+"a mistake": "ein Fehler",
+"a miss": "eine verpasste Chance",
+"a blunder": "ein Patzer",
+"Paste a PGN": "PGN einfügen",
+"On chess.com: open a finished game → Share → PGN → Copy.": "Auf chess.com: beendete Partie öffnen → Teilen → PGN → Kopieren.",
+"Cancel": "Abbrechen",
+"Review": "Analysieren",
+"Recent games": "Letzte Partien",
+"Close": "Schließen",
+"Loading…": "Lädt…",
+"Open": "Öffnen",
+"Queued": "In Warteschlange",
+"No games found.": "Keine Partien gefunden.",
+"win": "Sieg",
+"loss": "Niederlage",
+"draw": "Remis",
+"Play vs Coach": "Gegen den Coach spielen",
+"Play as": "Spielen als",
+"Coach strength:": "Stärke des Coaches:",
+"Show the evaluation bar while playing": "Bewertungsbalken beim Spielen anzeigen",
+"Start game": "Partie starten",
+"White": "Weiß",
+"Black": "Schwarz",
+"Random": "Zufall",
+"Beginner": "Anfänger",
+"Novice": "Neuling",
+"Casual": "Hobbyspieler",
+"Club player": "Vereinsspieler",
+"Strong": "Stark",
+"Expert": "Experte",
+"Master": "Meister",
+"Pieces": "Figuren",
+"Board": "Brett",
+"Done": "Fertig",
+"Green": "Grün",
+"Wood": "Holz",
+"Blue": "Blau",
+"Purple": "Lila",
+"💡 Hint": "💡 Tipp",
+"🏳 Resign": "🏳 Aufgeben",
+"⇅ Flip board": "⇅ Brett drehen",
+"New game": "Neue Partie",
+"↶ Undo move": "↶ Zug zurück",
+"↶ Take back": "↶ Zurücknehmen",
+"↶ Take it back": "↶ Zug zurücknehmen",
+"Practice – you play both sides": "Üben – du spielst beide Seiten",
+"(you)": "(du)",
+"Level": "Stufe",
+"Coach": "Coach",
+"Tips for {side}'s next move": "Tipps für den nächsten Zug von {side}",
+"Best move": "Bester Zug",
+"Also good": "Auch gut",
+"Playable": "Spielbar",
+"{side}: {san} is {verdict}": "{side}: {san} ist {verdict}",
+"Your move {san} is {verdict}": "Dein Zug {san} ist {verdict}",
+"My move: {san}": "Mein Zug: {san}",
+"by resignation": "durch Aufgabe",
+"by checkmate": "durch Schachmatt",
+"Draw": "Remis",
+"{side} wins": "{side} gewinnt",
+"You won": "Du hast gewonnen",
+"Well played.": "Gut gespielt.",
+"The coach won {why}.": "Der Coach hat {why} gewonnen.", "You won {why}!": "Du hast {why} gewonnen!",
+"Let's look at what happened!": "Schauen wir uns an, was passiert ist!",
+"📊 Review this game": "📊 Partie analysieren",
+"Practice mode": "Übungsmodus",
+"You play both sides. Below you always see tips for the next move – click one to play it, or make your own move. I'll rate every move, and you can undo as often as you like.": "Du spielst beide Seiten. Unten siehst du immer Tipps für den nächsten Zug – klick einen an, um ihn zu spielen, oder zieh selbst. Ich bewerte jeden Zug, und du kannst so oft zurücknehmen, wie du willst.",
+"Let's play!": "Los geht's!",
+"I'll explain every move – yours and mine. Drag a piece, or click it and then the square where it should go.": "Ich erkläre jeden Zug – deinen und meinen. Zieh eine Figur oder klick sie an und dann ihr Zielfeld.",
+"Hint: try {san}": "Tipp: versuch {san}",
+"Really resign this game?": "Partie wirklich aufgeben?",
+"Analyzing the game – the review opens in a moment…": "Partie wird analysiert – die Analyse öffnet sich gleich…",
+"checkmate": "Schachmatt",
+"stalemate": "Patt",
+"insufficient material": "zu wenig Material",
+"threefold repetition": "dreifache Wiederholung",
+"fivefold repetition": "fünffache Wiederholung",
+"fifty moves": "50-Züge-Regel",
+"seventyfive moves": "75-Züge-Regel",
+"resignation": "Aufgabe",
+"Puzzles from your games": "Puzzles aus deinen Partien",
+"Due": "Fällig",
+"Solved": "Gelöst",
+"Mastered": "Gemeistert",
+"Streak": "Serie",
+"You": "Du",
+"Opponent": "Gegner",
+"All done for now!": "Für jetzt alles erledigt!",
+"You have practiced all your puzzles. Solved ones come back after a while so you don't forget them – play and review more games for new puzzles.": "Du hast alle Puzzles geübt. Gelöste kommen nach einiger Zeit wieder, damit du sie nicht vergisst – spiel und analysiere mehr Partien für neue Puzzles.",
+"No puzzles yet": "Noch keine Puzzles",
+"Puzzles are made from the mistakes in your reviewed games. Review a few games first!": "Puzzles entstehen aus den Fehlern in deinen analysierten Partien. Analysiere zuerst ein paar Partien!",
+"Find the best move for {side}": "Finde den besten Zug für {side}",
+"In your game {game} (move {n}) you played <b>{san}</b> here – {verdict}.": "In deiner Partie {game} (Zug {n}) hast du hier <b>{san}</b> gespielt – {verdict}.",
+"Can you find something better?": "Findest du etwas Besseres?",
+"Next puzzle ▶": "Nächstes Puzzle ▶",
+"See the game": "Zur Partie",
+"Skip": "Überspringen",
+"No reviewed games yet.": "Noch keine analysierten Partien.",
+"Games": "Partien",
+"wins": "Siege",
+"losses": "Niederlagen",
+"draws": "Remis",
+"Accuracy (last 10)": "Genauigkeit (letzte 10)",
+"Mistakes + blunders / game": "Fehler + Patzer / Partie",
+"Weakest phase": "Schwächste Phase",
+"{v}% average accuracy": "{v}% Genauigkeit im Schnitt",
+"vs. earlier games: not enough games yet": "Vergleich mit früher: noch zu wenige Partien",
+"vs. the 10 games before": "ggü. den 10 Partien davor",
+"Accuracy per game": "Genauigkeit pro Partie",
+"Mistakes and blunders per game": "Fehler und Patzer pro Partie",
+"Mistakes": "Fehler",
+"Blunders": "Patzer",
+"Average accuracy by phase": "Durchschnittliche Genauigkeit pro Phase",
+"Your openings": "Deine Eröffnungen",
+"W / L / D": "S / N / R",
+"Click to open the review": "Klicken, um die Analyse zu öffnen",
+"This game is not finished. Reviews only work after the game is over.": "Diese Partie ist nicht beendet. Analysen gibt es erst nach Partieende.",
+"Could not read any moves from this PGN.": "In diesem PGN wurden keine Züge gefunden.",
+"This chess.com username does not exist.": "Diesen chess.com-Namen gibt es nicht.",
+"Set your username first.": "Gib zuerst deinen Benutzernamen ein.",
+"Unknown game, reload the list.": "Unbekannte Partie, lade die Liste neu.",
+"Start a new game first.": "Starte zuerst eine neue Partie.",
+"Illegal move.": "Ungültiger Zug.",
+"It's not your turn.": "Du bist nicht am Zug.",
+"Finish the game first.": "Beende zuerst die Partie."
+}};
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
+  document.querySelectorAll('[data-i18n-title]').forEach(el => el.title = t(el.dataset.i18nTitle));
+  const lb = document.getElementById('langbtn');
+  if (lb) lb.textContent = '🌐 ' + (lang === 'de' ? 'DE' : 'EN');
+}
+const I18N_EN = {"W_short": "W", "L_short": "L", "D_short": "D"};
+function t(en, vars) {
+  let s = (lang !== 'en' && I18N[lang] && I18N[lang][en]) || I18N_EN[en] || en;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.split('{' + k + '}').join(v);
+  return s;
+}
+
+// ---------- preferences (pieces / board) ----------
+const prefs = {pieces: 'staunty', board: 'green'};
+try { Object.assign(prefs, JSON.parse(localStorage.getItem('coach-prefs') || '{}')); } catch (e) {}
+if (!PIECESETS[prefs.pieces]) prefs.pieces = Object.keys(PIECESETS)[0];
+if (!BOARDS[prefs.board]) prefs.board = 'green';
+const img = sym => PIECESETS[prefs.pieces][sym];
+function applyPrefs() {
+  document.documentElement.dataset.board = prefs.board;
+  $('logoimg').src = img('N'); $('heroimg').src = img('N'); $('coachimg').src = img('N');
+  document.querySelectorAll('.coachav').forEach(i => i.src = img('N'));
+  try { localStorage.setItem('coach-prefs', JSON.stringify(prefs)); } catch (e) {}
+  if (mode === 'play' && P) { playPlayers(); playRender(); renderChat(); }
+  else if (R && mode === 'review') { setPlayers(); buildAcc(false); render(); }
+}
+function buildSettings() {
+  $('pieceopts').innerHTML = Object.keys(PIECESETS).map(k =>
+    `<div class="opt ${k === prefs.pieces ? 'on' : ''}" data-p="${k}"><div class="pv"><img src="${PIECESETS[k].N}"><img src="${PIECESETS[k].q}"></div>${k[0].toUpperCase() + k.slice(1)}</div>`).join('');
+  $('boardopts').innerHTML = Object.entries(BOARDS).map(([k, [l, d, n]]) =>
+    `<div class="opt ${k === prefs.board ? 'on' : ''}" data-b="${k}"><div class="sw" data-board="${k}" style="--l:var(--light);--d:var(--dark)">${'<i></i>'.repeat(8)}</div>${t(n)}</div>`).join('');
+  document.querySelectorAll('#pieceopts .opt').forEach(o => o.onclick = () => { prefs.pieces = o.dataset.p; applyPrefs(); buildSettings(); });
+  document.querySelectorAll('#boardopts .opt').forEach(o => o.onclick = () => { prefs.board = o.dataset.b; applyPrefs(); buildSettings(); });
+}
+$('settingsbtn').onclick = async () => {
+  buildSettings(); setdlg.showModal();
+  let think = 0.2, pr = {};
+  try { pr = await api('/api/prefs'); think = pr.think; } catch (e) {}
+  const lanText = (on, url, changed) => !on ? '' : changed ? t('Restart the coach (Start Chess Coach) to switch this on.')
+    : url ? t('On your phone, open: <b>{u}</b>', {u: esc(url)}) : t('Restart the coach (Start Chess Coach) to switch this on.');
+  $('lanbox').checked = !!pr.lan;
+  $('lanurl').innerHTML = lanText(pr.lan, pr.lan_url, false);
+  $('lanbox').onchange = async () => {
+    try { await api('/api/prefs', {lan: $('lanbox').checked}); } catch (e) {}
+    $('lanurl').innerHTML = $('lanbox').checked ? lanText(true, null, true) : t('Restart the coach to switch this off.');
+  };
+  const opts = [[0.2, t('Fast')], [0.5, t('Normal')], [1.0, t('Thorough')]];
+  const draw = () => {
+    $('thinkopts').innerHTML = opts.map(([v, n]) => `<button class="${v === think ? 'on' : ''}" data-v="${v}">${n}</button>`).join('');
+    $('thinkopts').querySelectorAll('button').forEach(b => b.onclick = async () => { think = +b.dataset.v; draw(); try { await api('/api/prefs', {think}); } catch (e) {} });
+  };
+  draw();
+};
+
+async function api(path, body) {
+  const r = await fetch(path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dot = cls => `<span class="dot" style="background:${CLS[cls].c}">${CLS[cls].s}</span>`;
+function parseFen(fen) {
+  const b = Array(64).fill(null);
+  fen.split(' ')[0].split('/').forEach((row, i) => {
+    let f = 0; const rank = 7 - i;
+    for (const ch of row) { if (/\d/.test(ch)) f += +ch; else b[rank * 8 + f++] = ch; }
+  });
+  return b;
+}
+const SAN_DE = {K: 'K', Q: 'D', R: 'T', B: 'L', N: 'S'};
+// German notation: S = knight, L = bishop, T = rook, D = queen
+const sanL = s => lang !== 'de' ? s : String(s)
+  .replace(/\b([KQRBN])(?=[a-h]?[1-8]?x?[a-h][1-8])/g, (m, pc) => SAN_DE[pc]).replace(/=([QRBN])/g, (m, pc) => '=' + SAN_DE[pc]);
+const sqName = s => 'abcdefgh'[s % 8] + (Math.floor(s / 8) + 1);
+const sqIdx = n => (n.charCodeAt(0) - 97) + (+n[1] - 1) * 8;
+const sqXY = s => { const f = s % 8, r = Math.floor(s / 8); return flipped ? [7 - f, r] : [f, 7 - r]; };
+
+// ---------- board ----------
+function drawBoard(fen, {hl = [], badge = null, arrows = [], selected = null, dots = [], check = null} = {}) {
+  const b = Array.isArray(fen) ? fen : parseFen(fen), el = $('board');
+  let h = '';
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+    const rank = flipped ? y : 7 - y, file = flipped ? 7 - x : x, s = rank * 8 + file;
+    const cl = ['sq', (rank + file) % 2 ? 'l' : 'd'];
+    if (hl.includes(s)) cl.push('hl');
+    if (selected === s) cl.push('sel');
+    if (dots.includes(s)) cl.push(b[s] ? 'cap' : 'tgt');
+    if (check === s) cl.push('chk');
+    let inner = b[s] ? `<img class="pc" src="${img(b[s])}" draggable="false" alt="">` : '';
+    if (y === 7) inner += `<span class="coord cf">${'abcdefgh'[file]}</span>`;
+    if (x === 0) inner += `<span class="coord cr">${rank + 1}</span>`;
+    if (badge && badge.sq === s) inner += `<div class="badge" style="background:${CLS[badge.cls].c}">${CLS[badge.cls].s}</div>`;
+    h += `<div class="${cl.join(' ')}" data-s="${s}">${inner}</div>`;
+  }
+  let svg = '<svg id="arrows" viewBox="0 0 8 8">';
+  for (const [uci, color] of arrows) {
+    const [x1, y1] = sqXY(sqIdx(uci.slice(0, 2))), [x2, y2] = sqXY(sqIdx(uci.slice(2, 4)));
+    const ax = x1 + .5, ay = y1 + .5, bx = x2 + .5, by = y2 + .5, len = Math.hypot(bx - ax, by - ay);
+    const ux = (bx - ax) / len, uy = (by - ay) / len, ex = bx - ux * .38, ey = by - uy * .38;
+    svg += `<line x1="${ax}" y1="${ay}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width=".2" stroke-linecap="round" opacity=".8"/>`
+         + `<polygon points="${bx},${by} ${ex - uy * .28},${ey + ux * .28} ${ex + uy * .28},${ey - ux * .28}" fill="${color}" opacity=".8"/>`;
+  }
+  const key = h + svg;
+  if (el.dataset.key !== key || !el.firstChild) { el.innerHTML = key + '</svg>'; el.dataset.key = key; }
+  el.classList.toggle('retrymode', !!retry);
+  el.style.setProperty('--sqsize', el.offsetWidth / 8 + 'px');
+  el.classList.toggle('playmode', mode === 'play');
+}
+
+function evalBar(pos) {
+  const bar = $('evalbar'), lab = $('evallabel');
+  bar.classList.toggle('flip', flipped);
+  bar.style.height = $('board').offsetHeight + 'px';
+  bar.querySelector('.w').style.height = pos.wp + '%';
+  const txt = pos.m !== null && pos.m !== undefined ? (pos.m === 0 ? '#' : 'M' + Math.abs(pos.m)) : (Math.abs(pos.e) / 100).toFixed(1);
+  lab.textContent = txt;
+  lab.className = pos.e < 0 ? 'bl' : '';
+}
+
+// ---------- sound (synthesized; files in the "sounds" folder replace them) ----------
+let muted = false, actx = null;
+try { muted = localStorage.getItem('coach-muted') === '1'; } catch (e) {}
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function knock(vol = .5, delay = 0, pitch = 1) {           // soft wooden piece on a board
+  const c = audio(), t = c.currentTime + delay;
+  const o = c.createOscillator(), g = c.createGain();          // low "thud"
+  o.type = 'sine';
+  o.frequency.setValueAtTime(240 * pitch, t); o.frequency.exponentialRampToValueAtTime(120 * pitch, t + .06);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol * .6, t + .003); g.gain.exponentialRampToValueAtTime(.0001, t + .09);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t + .1);
+  const n = Math.floor(c.sampleRate * .015), buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+  const src = c.createBufferSource(), f = c.createBiquadFilter(), g2 = c.createGain();  // tiny soft click
+  src.buffer = buf; f.type = 'lowpass'; f.frequency.value = 1800 * pitch; g2.gain.value = vol * .35;
+  src.connect(f).connect(g2).connect(c.destination); src.start(t);
+}
+function tone(freq, dur, delay = 0, type = 'sine', vol = .12) {
+  const c = audio(), t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .05);
+}
+const SFX = {
+  move:      () => knock(),
+  capture:   () => { knock(.6, 0, .85); knock(.35, .035, 1.15); },
+  castle:    () => { knock(.45); knock(.45, .11, .95); },
+  check:     () => { knock(); tone(880, .25, .03, 'sine', .04); },
+  brilliant: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .35, .18 + i * .07, 'triangle', .09)),
+  great:     () => { tone(659, .2, .18, 'triangle', .09); tone(988, .3, .26, 'triangle', .09); },
+  bad:       () => tone(330, .25, .18, 'triangle', .07),
+  blunder:   () => { tone(196, .3, .18, 'sawtooth', .04); tone(147, .45, .32, 'sawtooth', .04); },
+  correct:   () => [659, 784, 1047].forEach((f, i) => tone(f, .3, i * .08, 'triangle', .1)),
+  wrong:     () => tone(165, .35, 0, 'square', .04),
+  ready:     () => { tone(784, .25, 0, 'sine', .12); tone(1175, .4, .12, 'sine', .12); },
+  promote:   () => { knock(); tone(1047, .25, .05, 'triangle', .07); },
+  end:       () => [784, 659, 523].forEach((f, i) => tone(f, .35, i * .12, 'triangle', .08)),
+};
+const CUSTOM = {}, CUSTOM_NAME = {move: 'move', capture: 'capture', check: 'check', castle: 'castle', ready: 'notify', promote: 'promote', end: 'end'};
+(async () => {
+  let files = [];
+  try { files = await api('/api/sounds'); } catch (e) { return; }
+  for (const [key, name] of Object.entries(CUSTOM_NAME)) {
+    const file = files.find(f => f.replace(/\.\w+$/, '').toLowerCase() === name);
+    if (!file) continue;
+    try {
+      const r = await fetch('/sounds/' + encodeURIComponent(file));
+      if (r.ok) CUSTOM[key] = await audio().decodeAudioData(await r.arrayBuffer());
+    } catch (e) {}
+  }
+})();
+function play(name) {
+  if (muted) return;
+  try {
+    if (!CUSTOM[name] && name === 'check' && CUSTOM.move) name = 'move';
+    if (CUSTOM[name]) {
+      const c = audio(), src = c.createBufferSource();
+      src.buffer = CUSTOM[name]; src.connect(c.destination); src.start();
+    } else SFX[name]();
+  } catch (e) {}
+}
+function moveSound(ply, withVerdict) {
+  // no own check sound file -> the move sound is used for checks (play() falls back to it)
+  play(ply.san.includes('=') ? 'promote' : /[+#]/.test(ply.san) ? 'check' : ply.san.startsWith('O-O') ? 'castle' : ply.san.includes('x') ? 'capture' : 'move');
+  if (withVerdict) verdictSound(ply.cls);
+}
+function verdictSound(cls) {
+  const v = {brilliant: 'brilliant', great: 'great', blunder: 'blunder', mistake: 'bad', miss: 'bad'}[cls];
+  if (v) play(v);
+}
+// sound for a move made on the board, known before the server answers
+function localMoveSound(b, uci) {
+  const to = sqIdx(uci.slice(2, 4)), pc = b[sqIdx(uci.slice(0, 2))];
+  play(uci.length > 4 ? 'promote' : pieceMoves(b, uci).length > 1 ? 'castle'
+    : b[to] || ((pc === 'P' || pc === 'p') && uci[0] !== uci[2]) ? 'capture' : 'move');
+}
+$('mute').onclick = () => {
+  muted = !muted; $('mute').textContent = muted ? '🔇' : '🔊';
+  try { localStorage.setItem('coach-muted', muted ? '1' : '0'); } catch (e) {}
+  if (!muted) play('move');
+};
+$('mute').textContent = muted ? '🔇' : '🔊';
+
+// ---------- animation ----------
+function pieceMoves(b, uci) {          // [[from, to], ...] incl. the rook when castling
+  const f = sqIdx(uci.slice(0, 2)), t = sqIdx(uci.slice(2, 4)), out = [[f, t]];
+  if ((b[f] === 'K' || b[f] === 'k') && Math.abs(f % 8 - t % 8) === 2) {
+    const r = Math.floor(f / 8) * 8;
+    out.push(t % 8 === 6 ? [r + 7, r + 5] : [r, r + 3]);
+  }
+  return out;
+}
+function applyMove(b, uci) {
+  const f = sqIdx(uci.slice(0, 2)), t = sqIdx(uci.slice(2, 4)), p = b[f], rook = pieceMoves(b, uci).slice(1);
+  b = b.slice();
+  if ((p === 'P' || p === 'p') && f % 8 !== t % 8 && !b[t]) b[Math.floor(f / 8) * 8 + t % 8] = null;  // en passant
+  for (const [a, c] of rook) { b[c] = b[a]; b[a] = null; }
+  b[t] = uci[4] ? (p === 'P' ? uci[4].toUpperCase() : uci[4]) : p;
+  b[f] = null;
+  return b;
+}
+function slide(moves, ms = 240) {      // piece now on `to` glides in from `from`
+  for (const [from, to] of moves) {
+    const pc = document.querySelector(`#board .sq[data-s="${to}"] .pc`);
+    if (!pc) continue;
+    const [x1, y1] = sqXY(from), [x2, y2] = sqXY(to);
+    pc.style.transition = 'none';
+    pc.style.zIndex = 10;
+    pc.style.transform = `translate(${(x1 - x2) * 100}%, ${(y1 - y2) * 100}%)`;
+    pc.getBoundingClientRect();
+    pc.style.transition = `transform ${ms}ms cubic-bezier(.22,.8,.3,1)`;
+    pc.style.transform = '';
+    setTimeout(() => { pc.style.zIndex = ''; }, ms);
+  }
+}
+function flash(cls) {
+  const b = $('board'); b.classList.remove(cls); void b.offsetWidth; b.classList.add(cls);
+}
+function countUp(el, to, ms = 900) {
+  const t0 = performance.now(), step = now => {
+    const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = (to * e).toFixed(1);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ---------- review ----------
+function setCoach(icon, color, html) {
+  const ic = $('coachic');
+  ic.textContent = icon; ic.style.background = color; ic.style.display = icon ? '' : 'none';
+  const ct = $('coachtext');
+  ct.innerHTML = html;
+  ct.classList.remove('fade'); void ct.offsetWidth; ct.classList.add('fade');
+  $('coachbtns').innerHTML = '';
+}
+function render() {
+  if (!R) return;
+  const pos = R.positions[cur], ply = cur > 0 ? R.plies[cur - 1] : null;
+  if (retry) return renderRetry();
+  const opts = {};
+  if (ply) {
+    opts.hl = [sqIdx(ply.uci.slice(0, 2)), sqIdx(ply.uci.slice(2, 4))];
+    opts.badge = {sq: sqIdx(ply.uci.slice(2, 4)), cls: ply.cls};
+    if (['excellent', 'good', ...BAD].includes(ply.cls)) opts.arrows = [[ply.best_uci, '#81b64c']];
+  }
+  drawBoard(pos.fen, opts);
+  evalBar(pos);
+  if (!ply) {
+    setCoach('', '', `<div class="h">${t('Game summary')}</div>${esc(R.summary)}`);
+    const firstBad = R.plies.findIndex(p => p.color === R.my_color && ['mistake', 'blunder', 'miss'].includes(p.cls));
+    if (firstBad >= 0) addBtn(t('Go to first mistake'), () => go(firstBad + 1), true);
+    if (R.pgn) addBtn(t('🔄 Analyze again'), async () => {
+      try { await api('/api/reanalyze', {id: R.id}); wantReview = R.id; wantBusy = false;
+        setCoach('⏳', '#f7c631', `<div class="h">${t('Analyzing again…')}</div>${t('The review reopens by itself when it is done.')}`); } catch (e) { alert(t(e.message)); }
+    });
+  } else {
+    const clock = ply.clock != null ? ` <small>· ${t('{c} left', {c: fmtClock(ply.clock)})}</small>` : '';
+    setCoach(CLS[ply.cls].s, CLS[ply.cls].c,
+      `<div class="h" style="color:${CLS[ply.cls].c}">${dot(ply.cls)} ${t('{san} is {verdict}', {san: esc(sanL(ply.san)), verdict: t(VERDICT[ply.cls])})}${clock}</div>` + motifChips(ply)
+      + esc(coachBody(ply)));
+    if (ply.best_pv && ply.best_pv.length > 1) addBtn(t('▶ Show best line'), () => playLine(R.positions[cur - 1].fen, ply.best_pv, ply.best_pv_san, t('Best line')));
+    if (ply.reply_pv && ply.reply_pv.length > 1 && ['mistake', 'blunder', 'miss'].includes(ply.cls))
+      addBtn(t('▶ What happens now?'), () => playLine(R.positions[cur].fen, ply.reply_pv, ply.reply_pv_san, t('The punishment')));
+    if (ply.legal) addBtn(t('↻ Retry'), () => { retry = {k: cur, solved: false, msg: ''}; sel = null; render(); }, true);
+  }
+  const nextKey = R.plies.findIndex((p, i) => i >= cur && p.color === R.my_color && ['mistake', 'blunder', 'miss', 'brilliant', 'great'].includes(p.cls));
+  if (nextKey >= 0) addBtn(t('Next key moment ▶'), () => go(nextKey + 1));
+  drawGraph();
+  document.querySelectorAll('#moves .mv').forEach(m => m.classList.toggle('on', +m.dataset.k === cur));
+  const on = document.querySelector('#moves .mv.on');
+  if (on) {  // scroll only the move list, never the page
+    const box = $('moves'), top = on.offsetTop - box.offsetTop;
+    if (top < box.scrollTop) box.scrollTop = top;
+    else if (top + on.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = top + on.offsetHeight - box.clientHeight;
+  }
+}
+function coachBody(ply) {           // the headline already says "X is ...", so drop that part of the text
+  let x = ply.text; const pre = sanL(ply.san) + (lang === 'de' ? ' ist ' : ' is ');
+  if (!x.startsWith(pre) || /checkmate!|Schachmatt!/.test(x)) return x;
+  x = x.slice(pre.length);
+  const but = x.match(/^[^.!,]*,\s*(but|aber)\s+/);
+  return but ? x.slice(but[0].length) : x.replace(/^[^.!]*[.!]\s*/, '');
+}
+const MOTIF = {fork: ['🍴', 'Fork'], pin: ['📌', 'Pin'], skewer: ['🍢', 'Skewer'], discovered: ['💥', 'Discovered attack'],
+  double_check: ['⚡', 'Double check'], mate: ['♚', 'Checkmate'], back_rank: ['🏰', 'Back-rank mate'], hanging: ['🎁', 'Free piece'], promotion: ['👑', 'Promotion']};
+const motifName = m => MOTIF[m] ? MOTIF[m][0] + ' ' + t(MOTIF[m][1]) : '';
+function motifChips(ply) {
+  const c = [];
+  if (ply.allowed && MOTIF[ply.allowed]) c.push(`<span class="mchip bad">⚠ ${t('allowed')}: ${motifName(ply.allowed)}</span>`);
+  if (ply.motif && MOTIF[ply.motif]) c.push(BAD.includes(ply.cls) ? `<span class="mchip">💡 ${t('missed')}: ${motifName(ply.motif)}</span>`
+                                                                   : `<span class="mchip good">✨ ${motifName(ply.motif)}</span>`);
+  return c.length ? `<div class="mchips">${c.join('')}</div>` : '';
+}
+async function playLine(fen, ucis, sans, title) {
+  const token = {}; lineView = token;
+  let b = parseFen(fen);
+  const list = (sans || ucis).slice(0, 6);
+  const show = i => setCoach('▶', '#3d8bd9', `<div class="h">${title}</div>` + list.map((m, k) =>
+    `<span style="${k === i ? 'background:#3d8bd9;color:#fff;' : ''}padding:1px 6px;border-radius:5px;font-weight:800">${esc(sanL(m))}</span>`).join(' '));
+  show(-1);
+  addBtn(t('⏹ Back to the game'), () => { lineView = null; render(); }, true);
+  drawBoard(b, {arrows: [[ucis[0], '#3d8bd9']]});
+  for (let i = 0; i < Math.min(6, ucis.length); i++) {
+    await sleep(i ? 950 : 500);
+    if (lineView !== token) return;
+    const u = ucis[i], nb = applyMove(b, u);
+    drawBoard(nb, {hl: [sqIdx(u.slice(0, 2)), sqIdx(u.slice(2, 4))], arrows: ucis[i + 1] ? [[ucis[i + 1], '#3d8bd966']] : []});
+    slide(pieceMoves(b, u)); localMoveSound(b, u);
+    b = nb;
+    show(i);
+    addBtn(t('⏹ Back to the game'), () => { lineView = null; render(); }, true);
+  }
+  if (lineView === token) addBtn(t('↺ Replay'), () => playLine(fen, ucis, sans, title));
+}
+function addBtn(label, fn, primary) {
+  const b = document.createElement('button'); b.textContent = label; if (primary) b.className = 'primary';
+  b.onclick = fn; $('coachbtns').appendChild(b);
+}
+const fmtClock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+function renderRetry() {
+  const ply = R.plies[retry.k - 1], fen = R.positions[retry.k - 1].fen;
+  const arrows = retry.show ? [[ply.best_uci, '#81b64c']] : [];
+  const hl = retry.tried ? [sqIdx(retry.tried.slice(0, 2)), sqIdx(retry.tried.slice(2, 4))] : [];
+  drawBoard(retry.board || fen, {selected: sel, arrows, hl, dots: sel === null ? [] : retryCtx.targets(sel)});
+  if (retry.anim) { slide(retry.anim); retry.anim = null; }
+  evalBar(R.positions[retry.k - 1]);
+  setCoach('↻', '#3d8bd9', `<div class="h">${t('Find a better move for {side}', {side: t(ply.color === 'white' ? 'White' : 'Black')})}</div>`
+    + (retry.msg || t('You played <b>{san}</b>. Drag a piece or click it, then click where it should go.', {san: esc(sanL(ply.san))})));
+  if (!retry.solved) addBtn(t('Show solution'), () => { retry.show = true; retry.msg = t('The best move was <b>{san}</b>.', {san: esc(sanL(ply.best_san))}); render(); });
+  addBtn(t('Back to review'), () => { retry = null; render(); }, retry.solved);
+}
+
+const isKing = p => p === 'K' || p === 'k';
+// castling can be played king-two-squares (e1g1) or king-onto-rook (e1h1), like on chess.com
+function findUci(legal, from, to, b) {
+  const pick = base => legal.find(u => u === base + 'q') || legal.find(u => u === base);
+  let uci = pick(sqName(from) + sqName(to));
+  if (!uci && b && isKing(b[from]) && b[to] && b[to].toLowerCase() === 'r' && (b[to] === b[to].toUpperCase()) === (b[from] === 'K')
+      && Math.floor(to / 8) === Math.floor(from / 8))
+    uci = pick(sqName(from) + sqName(Math.floor(from / 8) * 8 + (to % 8 > from % 8 ? 6 : 2)));
+  return uci;
+}
+// promotion: ask which piece (like chess.com) – resolves to 'q','r','b','n' or null
+function showPromo(to, white) {
+  return new Promise(res => {
+    const board = $('board'), [x, y] = sqXY(to), up = y > 3;
+    const veil = document.createElement('div'); veil.className = 'promoveil';
+    const box = document.createElement('div'); box.className = 'promo' + (up ? ' up' : '');
+    box.style.left = x * 12.5 + '%';
+    box.style[up ? 'bottom' : 'top'] = (up ? 7 - y : y) * 12.5 + '%';
+    for (const pc of 'qrbn') {
+      const b = document.createElement('button');
+      b.innerHTML = `<img src="${img(white ? pc.toUpperCase() : pc)}" alt="">`;
+      b.onpointerdown = e => { e.stopPropagation(); done(pc); };
+      box.appendChild(b);
+    }
+    const done = v => { veil.remove(); box.remove(); res(v); };
+    veil.onpointerdown = e => { e.stopPropagation(); done(null); };
+    board.append(veil, box);
+  });
+}
+function withPromotion(legal, from, to, b, dragged, apply) {
+  const uci = findUci(legal, from, to, b);
+  if (!uci) return false;
+  if (uci.length === 5 && legal.includes(uci.slice(0, 4) + 'n')) {
+    showPromo(sqIdx(uci.slice(2, 4)), b[from] === 'P').then(pc => { if (pc) apply(uci.slice(0, 4) + pc, dragged); });
+    return true;
+  }
+  apply(uci, dragged);
+  return true;
+}
+function moveTargets(legal, from, b) {
+  const out = [];
+  for (const u of legal) {
+    if (sqIdx(u.slice(0, 2)) !== from) continue;
+    const t = sqIdx(u.slice(2, 4));
+    out.push(t);
+    if (isKing(b[from]) && Math.abs(t % 8 - from % 8) === 2) out.push(Math.floor(from / 8) * 8 + (t % 8 === 6 ? 7 : 0));
+  }
+  return out;
+}
+const retryCtx = {
+  canPick(s) {
+    const ply = R.plies[retry.k - 1], b = parseFen(R.positions[retry.k - 1].fen), p = b[s];
+    return !retry.solved && !retry.tried && p && (p === p.toUpperCase()) === (ply.color === 'white');
+  },
+  targets(s) { return moveTargets(R.plies[retry.k - 1].legal, s, parseFen(R.positions[retry.k - 1].fen)); },
+  tryMove(from, to, dragged) {
+    return withPromotion(R.plies[retry.k - 1].legal, from, to, parseFen(R.positions[retry.k - 1].fen), dragged, retryMove);
+  },
+  redraw: () => render(),
+};
+function retryMove(uci, dragged) {
+  const ply = R.plies[retry.k - 1], b = parseFen(R.positions[retry.k - 1].fen);
+  sel = null;
+  retry.tried = uci;
+  retry.board = applyMove(b, uci);
+  retry.anim = dragged ? null : pieceMoves(b, uci);
+  if (ply.good.includes(uci)) {
+    retry.solved = true; retry.show = true;
+    localMoveSound(b, uci);
+    setTimeout(() => { play('correct'); flash('glow'); }, 180);
+    retry.msg = `<b style="color:#5d9b2c">${t('Correct! 🎉')}</b> ` + (uci === ply.best_uci ? t('That is the best move.') : t('That is a strong move too.'));
+  } else {
+    retry.msg = `<b style="color:#e5533d">${t('Not quite.')}</b> ${t('{move} is not the best. Try again!', {move: uci.slice(0, 2) + '→' + uci.slice(2, 4)})}`;
+    localMoveSound(b, uci);
+    const attempt = retry;
+    setTimeout(() => {                 // take the wrong move back
+      if (retry !== attempt) return;
+      play('wrong'); flash('shake');
+      retry.board = null; retry.tried = null;
+      retry.anim = pieceMoves(b, uci).map(([f, t]) => [t, f]);
+      render();
+    }, 650);
+  }
+  render();
+}
+
+let drag = null;
+function inputCtx() {
+  return mode === 'play' && P ? playCtx : mode === 'review' && retry ? retryCtx : mode === 'puzzle' && Z.p ? puzzleCtx
+    : mode === 'train' && TR.step ? trainCtx : null;
+}
+function squareAt(x, y) {
+  const r = $('board').getBoundingClientRect();
+  const fx = Math.floor((x - r.left) / r.width * 8), fy = Math.floor((y - r.top) / r.height * 8);
+  if (fx < 0 || fx > 7 || fy < 0 || fy > 7) return null;
+  return (flipped ? fy : 7 - fy) * 8 + (flipped ? 7 - fx : fx);
+}
+$('board').addEventListener('pointerdown', e => {
+  const ctx = inputCtx(), s = squareAt(e.clientX, e.clientY);
+  if (!ctx || s === null || e.button > 0) return;
+  e.preventDefault();
+  if (e.target.closest('.promo,.promoveil')) return;
+  if (sel !== null && sel !== s && ctx.tryMove(sel, s, false)) return;      // click-click
+  if (!ctx.canPick(s)) { if (sel !== null) { sel = null; ctx.redraw(); } return; }
+  const again = sel === s;
+  sel = s; ctx.redraw();
+  const pc = $('board').querySelector(`.sq[data-s="${s}"] .pc`);
+  if (!pc) return;
+  const size = $('board').getBoundingClientRect().width / 8;
+  const ghost = pc.cloneNode();
+  ghost.className = 'dragpc';
+  Object.assign(ghost.style, {width: size + 'px', height: size + 'px', left: e.clientX - size / 2 + 'px', top: e.clientY - size / 2 + 'px'});
+  drag = {from: s, ghost, pc, size, moved: false, again, x: e.clientX, y: e.clientY, over: null};
+  $('board').setPointerCapture(e.pointerId);
+});
+$('board').addEventListener('pointermove', e => {
+  if (!drag) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 4) {
+    drag.moved = true; document.body.appendChild(drag.ghost); drag.pc.classList.add('lifted');
+  }
+  if (!drag.moved) return;
+  drag.ghost.style.left = e.clientX - drag.size / 2 + 'px';
+  drag.ghost.style.top = e.clientY - drag.size / 2 + 'px';
+  const s = squareAt(e.clientX, e.clientY);
+  if (s !== drag.over) {
+    $('board').querySelectorAll('.sq.over').forEach(x => x.classList.remove('over'));
+    if (s !== null && s !== drag.from) $('board').querySelector(`.sq[data-s="${s}"]`)?.classList.add('over');
+    drag.over = s;
+  }
+});
+function endDrag(e, cancel) {
+  if (!drag) return;
+  const d = drag, ctx = inputCtx();
+  drag = null;
+  d.ghost.remove();
+  d.pc.classList.remove('lifted');
+  $('board').querySelectorAll('.sq.over').forEach(x => x.classList.remove('over'));
+  if (!ctx) return;
+  const s = cancel ? null : squareAt(e.clientX, e.clientY);
+  if (d.moved && s !== null && s !== d.from && ctx.tryMove(d.from, s, true)) return;
+  if (!d.moved && d.again) { sel = null; ctx.redraw(); }     // clicking the selected piece again unselects it
+}
+$('board').addEventListener('pointerup', e => endDrag(e, false));
+$('board').addEventListener('pointercancel', e => endDrag(e, true));
+
+function drawGraph() {
+  const N = R.positions.length, W = 600, H = 100;
+  const X = k => N > 1 ? k / (N - 1) * W : 0, Y = wp => H - wp / 100 * H;
+  const pts = R.positions.map((p, k) => `${X(k).toFixed(1)},${Y(p.wp).toFixed(1)}`).join(' ');
+  let s = `<defs><linearGradient id="gw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d9d9d6"/></linearGradient></defs>`
+        + `<polygon points="0,${H} ${pts} ${W},${H}" fill="url(#gw)"/>`
+        + `<line x1="0" x2="${W}" y1="${H / 2}" y2="${H / 2}" stroke="#888" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>`
+        + `<line x1="${X(cur)}" x2="${X(cur)}" y1="0" y2="${H}" stroke="#3d8bd9" stroke-width="2.5"/>`;
+  R.plies.forEach((p, i) => {
+    if (['mistake', 'blunder', 'miss', 'brilliant', 'great'].includes(p.cls))
+      s += `<circle cx="${X(i + 1)}" cy="${Y(R.positions[i + 1].wp)}" r="${i + 1 === cur ? 6 : 4.5}" fill="${CLS[p.cls].c}" stroke="#fff" stroke-width="1.5"/>`;
+  });
+  $('graph').innerHTML = s;
+}
+$('graph').addEventListener('click', e => {
+  const r = $('graph').getBoundingClientRect();
+  go(Math.round((e.clientX - r.left) / r.width * (R.positions.length - 1)));
+});
+
+function buildAcc(animate) {
+  const me = R.my_color;
+  const head = c => `<div class="hd">${esc(R[c])}</div>`;
+  const av = c => `<div class="pav ${c === me ? 'me' : ''}"><img src="${img(c === 'white' ? 'P' : 'p')}"></div>`;
+  let a = `<div></div>${head('white')}<div></div>${head('black')}`
+        + `<div class="rl">${t('Players')}</div>${av('white')}<div></div>${av('black')}`
+        + `<div class="rl">${t('Accuracy')}</div><div class="big w">${R.accuracy.white}</div><div></div><div class="big b">${R.accuracy.black}</div>`;
+  if (R.chesscom) a += `<div class="rl" style="color:var(--muted)">chess.com</div><div class="cc">${R.chesscom.white.toFixed(1)}</div><div></div><div class="cc">${R.chesscom.black.toFixed(1)}</div>`;
+  if (R.offset) a += `<div class="note">${t('Calibrated to your games (−{n} points)', {n: R.offset})}</div>`;
+  a += '<div class="sep"></div>';
+  for (const k of Object.keys(CLS))
+    a += `<div class="rl">${t(CLS[k].n)}</div><div class="n" style="color:${CLS[k].c}">${R.counts.white[k] || 0}</div>${dot(k)}<div class="n" style="color:${CLS[k].c}">${R.counts.black[k] || 0}</div>`;
+  $('acc').innerHTML = a;
+  if (animate) document.querySelectorAll('#acc .big').forEach(el => countUp(el, parseFloat(el.textContent)));
+}
+function buildStatic() {
+  flipped = R.my_color === 'black';
+  setPlayers();
+  buildAcc(true);
+  const grade = v => v >= 85 ? 'best' : v >= 70 ? 'good' : v >= 55 ? 'inaccuracy' : 'blunder';
+  const cell = (c, p) => p in R.phases[c] ? `<span class="v">${dot(grade(R.phases[c][p]))} ${R.phases[c][p]}%</span>` : '<span class="v" style="color:var(--faint)">–</span>';
+  const phs = ['opening', 'middlegame', 'endgame'].filter(p => p in R.phases.white || p in R.phases.black);
+  $('phases').innerHTML = `<div class="phase" style="color:var(--muted);font-size:13px"><span></span><span class="v">${esc(R.white)}</span><span class="v">${esc(R.black)}</span></div>`
+    + phs.map(p => `<div class="phase"><span style="font-weight:800">${t(p[0].toUpperCase() + p.slice(1))}</span>${cell('white', p)}${cell('black', p)}</div>`).join('');
+  let m = '';
+  for (let i = 0; i < R.plies.length; i += 2) {
+    m += `<div class="row"><span class="num">${i / 2 + 1}.</span>`;
+    for (const j of [i, i + 1]) {
+      const p = R.plies[j];
+      m += p ? `<span class="mv" data-k="${j + 1}">${['best', 'excellent', 'good'].includes(p.cls) ? '' : dot(p.cls)}${esc(sanL(p.san))}</span>` : '<span></span>';
+    }
+    m += '</div>';
+  }
+  $('moves').innerHTML = m;
+  $('moves').querySelectorAll('.mv').forEach(el => el.onclick = () => go(+el.dataset.k));
+}
+function setPlayers() {
+  const bar = c => `<div class="av"><img src="${img(c === 'white' ? 'K' : 'k')}"></div><span class="nm">${esc(R[c])}</span>`
+    + (R[c + '_elo'] ? `<span class="rt">(${esc(R[c + '_elo'])})</span>` : '')
+    + `<span class="ac ${c[0]}">${R.accuracy[c]}%</span>`;
+  $('ptop').innerHTML = bar(flipped ? 'white' : 'black');
+  $('pbot').innerHTML = bar(flipped ? 'black' : 'white');
+}
+
+function go(k) {
+  lineView = null;
+  const prev = cur;
+  retry = null; sel = null; cur = Math.max(0, Math.min(R.positions.length - 1, k));
+  render();
+  if (cur === prev + 1) {
+    const p = R.plies[cur - 1];
+    slide(pieceMoves(parseFen(R.positions[cur - 1].fen), p.uci)); moveSound(p, true);
+    if (cur === R.positions.length - 1) setTimeout(() => play('end'), 300);
+  } else if (cur === prev - 1) {
+    const p = R.plies[prev - 1];
+    slide(pieceMoves(parseFen(R.positions[cur].fen), p.uci).map(([f, t]) => [t, f])); play('move');
+  } else if (cur !== prev && cur > 0) moveSound(R.plies[cur - 1], true);
+}
+$('first').onclick = () => go(0); $('last').onclick = () => go(1e9);
+$('prev').onclick = () => go(cur - 1); $('next').onclick = () => go(cur + 1);
+$('flip').onclick = () => { flipped = !flipped; setPlayers(); render(); };
+document.addEventListener('keydown', e => {
+  if (!R || mode !== 'review' || /INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.querySelector('dialog[open]')) return;
+  if (e.key === 'ArrowLeft') go(cur - 1); else if (e.key === 'ArrowRight') go(cur + 1);
+  else if (e.key === 'Home') go(0); else if (e.key === 'End') go(1e9);
+});
+window.addEventListener('resize', () => {
+  if (mode === 'play' && P) evalBar(P); else if (R && mode === 'review') evalBar(R.positions[retry ? retry.k - 1 : cur]);
+});
+
+function setMode(m) {
+  mode = m; sel = null; retry = null;
+  $('welcome').hidden = m !== 'welcome';
+  $('review').hidden = !['review', 'play', 'puzzle', 'train'].includes(m);
+  $('center').hidden = m === 'stats';
+  $('right').hidden = m !== 'review';
+  $('playpanel').hidden = m !== 'play';
+  $('puzzlepanel').hidden = m !== 'puzzle';
+  $('statsview').hidden = m !== 'stats';
+  $('trainpanel').hidden = m !== 'train';
+  lineView = null;
+  document.querySelector('.nav').hidden = m !== 'review';
+  $('evalbar').classList.toggle('hide', (m === 'play' && !showEval) || m === 'puzzle' || m === 'train');
+  const tab = {welcome: 'reviewtab', review: 'reviewtab', puzzle: 'puzzlebtn', stats: 'statsbtn', train: 'trainbtn',
+               play: P && P.drill ? 'trainbtn' : P && P.self ? 'practicebtn' : 'playbtn'}[m];
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.id === tab));
+}
+async function openReview(id) {
+  R = await api('/api/game?id=' + encodeURIComponent(id));
+  setMode('review');
+  cur = 0; buildStatic(); go(0);
+  document.querySelectorAll('#list .item').forEach(i => i.classList.toggle('on', i.dataset.id === id));
+  history.replaceState(null, '', '#' + id);
+}
+
+// ---------- app state ----------
+async function poll() {
+  try {
+    const st = await api('/api/state');
+    if (firstState) { $('user').value = st.username; firstState = false; }
+    const s = st.status, w = $('watch');
+    w.className = 'chip ' + (!st.username ? 'off' : s.watch_error ? 'err' : '');
+    $('watchtxt').innerHTML = !st.username ? t('Not watching')
+      : s.watch_error ? t('Can\'t reach chess.com') : t('Watching <b>{u}</b>', {u: esc(st.username)});
+    w.title = s.watch_error || (st.username ? t('Finished games are reviewed automatically') : '');
+    $('progress').innerHTML = s.busy
+      ? `⏳ ${t('Analyzing')} <b>${esc(s.busy)}</b><span class="bar"><i style="width:${s.total ? s.done / s.total * 100 : 0}%"></i></span>` + (st.queued > 1 ? ` +${st.queued - 1}` : '')
+      : (s.error ? `<span class="err">${esc(t(s.error))}</span>` : '');
+    $('list').innerHTML = st.reviews.map(r => {
+      const me = r.my_color, res = r.result === '1/2-1/2' ? 'draw' : ((r.result === '1-0') === (me === 'white') ? 'win' : 'loss');
+      const opp = me === 'white' ? r.black : r.white;
+      const ac = r.accuracy >= 80 ? 'hi' : r.accuracy >= 60 ? 'mid' : 'lo';
+      return `<div class="item ${res} ${R && R.id === r.id ? 'on' : ''}" data-id="${esc(r.id)}"><div class="t"><span class="rb ${res}">${t({win: 'W', loss: 'L', draw: 'D'}[res] + '_short')}</span>vs ${esc(opp)}</div>`
+        + `<div class="s"><span>${esc(r.date) || t(res)}</span><span class="accchip ${ac}">${r.accuracy}%</span></div></div>`;
+    }).join('') || `<span style="color:var(--muted);font-size:13px">${t('No reviews yet.')}</span>`;
+    $('list').querySelectorAll('.item').forEach(i => i.onclick = () => openReview(i.dataset.id));
+    if (wantReview && mode !== 'play') {
+      if (s.busy) wantBusy = true;
+      else if (wantBusy && !st.queued) { const id = wantReview; wantReview = null; wantBusy = false; openReview(id); play('ready'); }
+    }
+    if (lastNew === null) lastNew = s.last_new || '';
+    else if (s.last_new && s.last_new !== lastNew) {
+      lastNew = s.last_new;
+      if (mode !== 'play' || wantReview === s.last_new) { wantReview = null; openReview(s.last_new); play('ready'); }
+      if (window.Notification && Notification.permission === 'granted') new Notification('Chess Coach', {body: t('Your game review is ready!')});
+    }
+  } catch (e) { $('watch').className = 'chip err'; $('watchtxt').textContent = t('Coach server is not running'); }
+}
+
+$('saveuser').onclick = async () => {
+  try {
+    const r = await api('/api/settings', {username: $('user').value});
+    $('user').value = r.username; poll();
+    if (window.Notification && Notification.permission === 'default') Notification.requestPermission();
+  } catch (e) { alert(t(e.message)); }
+};
+$('user').addEventListener('keydown', e => { if (e.key === 'Enter') $('saveuser').click(); });
+$('pgnbtn').onclick = () => { $('pgnerr').textContent = ''; pgndlg.showModal(); };
+$('pgngo').onclick = async () => {
+  try { await api('/api/pgn', {pgn: $('pgntext').value}); pgndlg.close(); $('pgntext').value = ''; poll(); }
+  catch (e) { $('pgnerr').textContent = t(e.message); }
+};
+$('recentbtn').onclick = async () => {
+  recentdlg.showModal(); $('recentbox').textContent = t('Loading…');
+  try {
+    const games = await api('/api/recent');
+    $('recentbox').innerHTML = games.map(g => {
+      const res = g.result === 'win' ? 'win' : ['agreed', 'repetition', 'stalemate', 'insufficient', 'timevsinsufficient', '50move'].includes(g.result) ? 'draw' : 'loss';
+      const d = g.end ? new Date(g.end * 1000).toLocaleDateString() : '';
+      return `<div class="g"><span><span class="res ${res}">${t(res)}</span> &nbsp;vs <b>${esc(g.opponent)}</b> (${g.opp_rating}) · ${esc(g.time_class)} · ${d}</span>`
+        + (g.reviewed ? `<button data-open="${g.id}">${t('Open')}</button>` : `<button class="primary" data-rev="${g.id}">${t('Review')}</button>`) + '</div>';
+    }).join('') || t('No games found.');
+    $('recentbox').querySelectorAll('[data-rev]').forEach(b => b.onclick = async () => {
+      await api('/api/review', {id: b.dataset.rev}); b.textContent = t('Queued'); b.disabled = true; poll();
+    });
+    $('recentbox').querySelectorAll('[data-open]').forEach(b => b.onclick = () => { recentdlg.close(); openReview(b.dataset.open); });
+  } catch (e) { $('recentbox').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+};
+
+// ---------- play vs coach ----------
+const LEVELS = [['Beginner', 250], ['Novice', 400], ['Casual', 600], ['Club player', 900], ['Strong', 1200], ['Expert', 1600], ['Master', 2200]];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let newColor = 'white', newTc = [0, 0];
+const TCS = [[0, 0], [3, 2], [5, 0], [10, 0], [15, 10]];
+try { const s = JSON.parse(localStorage.getItem('coach-play') || '{}'); newColor = s.color || newColor; $('lvl').value = s.level || 1; showEval = !!s.eval; newTc = s.tc || newTc; } catch (e) {}
+function buildTcOpts() {
+  $('tcopts').innerHTML = TCS.map(([m, i]) => `<button class="${m === newTc[0] && i === newTc[1] ? 'on' : ''}" data-tc="${m},${i}">${m ? m + ' + ' + i : '∞ ' + t('No clock')}</button>`).join('');
+  $('tcopts').querySelectorAll('button').forEach(b => b.onclick = () => { newTc = b.dataset.tc.split(',').map(Number); buildTcOpts(); });
+}
+function lvlLabel() { const [n, e] = LEVELS[$('lvl').value - 1]; $('lvlname').textContent = `${$('lvl').value} – ${t(n)} (~${e})`; }
+$('lvl').oninput = lvlLabel;
+function buildColorOpts() {
+  const opt = (k, imgs, label) => `<div class="opt ${k === newColor ? 'on' : ''}" data-c="${k}"><div class="pv">${imgs}</div>${label}</div>`;
+  $('coloropts').innerHTML = opt('white', `<img src="${img('K')}">`, t('White'))
+    + opt('random', `<img src="${img('K')}" style="width:34px"><img src="${img('k')}" style="width:34px">`, t('Random'))
+    + opt('black', `<img src="${img('k')}">`, t('Black'));
+  document.querySelectorAll('#coloropts .opt').forEach(o => o.onclick = () => { newColor = o.dataset.c; buildColorOpts(); });
+}
+function openNewGame() { buildColorOpts(); buildTcOpts(); lvlLabel(); $('showeval').checked = showEval; newdlg.showModal(); }
+$('newgamebtn').onclick = () => P && P.self ? startPractice() : openNewGame();
+$('playbtn').onclick = async () => {
+  try { const st = await api('/api/play/state'); if (st.active && !st.result && !st.self) return enterPlay(st); } catch (e) {}
+  openNewGame();
+};
+$('practicebtn').onclick = async () => {
+  try { const st = await api('/api/play/state'); if (st.active && !st.result && st.self) return enterPlay(st); } catch (e) {}
+  startPractice();
+};
+async function startPractice() {
+  setMode('play'); chatSeen = 0; $('chat').innerHTML = ''; addTyping();
+  try { enterPlay(await api('/api/play/new', {practice: true}), true); } catch (e) { alert(t(e.message)); }
+}
+$('pflipbtn').onclick = () => { flipped = !flipped; playPlayers(); playRender(); };
+$('startgame').onclick = async () => {
+  showEval = $('showeval').checked;
+  try { localStorage.setItem('coach-play', JSON.stringify({color: newColor, level: +$('lvl').value, eval: showEval, tc: newTc})); } catch (e) {}
+  newdlg.close();
+  setMode('play'); chatSeen = 0; $('chat').innerHTML = '';
+  addTyping();
+  try {
+    const st = await api('/api/play/new', {color: newColor, level: +$('lvl').value, tc: newTc});
+    enterPlay(st, true);
+    if (st.history.length) {          // the coach (white) already moved
+      const m = st.history[0]; slide(pieceMoves(parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'), m.uci)); moveSound(m, false);
+    }
+  } catch (e) { alert(t(e.message)); }
+};
+function enterPlay(st, fresh) {
+  P = st; P._at = performance.now(); hintArrow = null; busy = false;
+  if (mode !== 'play') { chatSeen = 0; $('chat').innerHTML = ''; }
+  const wasPlay = mode === 'play';
+  setMode('play');
+  if (!wasPlay || fresh) flipped = !P.self && P.user === 'black';
+  $('playtitle').textContent = P.drill ? '🏁 ' + t(P.drill.title) : P.self ? t('Practice – you play both sides') : t('Play vs Coach');
+  $('hintbtn').hidden = $('resignbtn').hidden = P.self;
+  $('pflipbtn').hidden = !P.self;
+  $('playbtns').classList.toggle('two', P.self);
+  playPlayers(); playRender(); renderChat(fresh ? 0 : P.history.length);
+}
+function playPlayers() {
+  const userColor = P.user, botColor = userColor === 'white' ? 'black' : 'white';
+  const bar = (c, name, sub) => `<div class="av"><img src="${img(c === 'white' ? 'K' : 'k')}"></div><span class="nm">${esc(name)}</span><span class="rt">${esc(sub)}</span>`;
+  if (P.self) {
+    $('ptop').innerHTML = bar(flipped ? 'white' : 'black', t(flipped ? 'White' : 'Black'), t('(you)'));
+    $('pbot').innerHTML = bar(flipped ? 'black' : 'white', t(flipped ? 'Black' : 'White'), t('(you)'));
+    return;
+  }
+  $('ptop').innerHTML = bar(botColor, 'Coach', P.drill ? t('Endgame drill') : `${t('Level')} ${P.level} · ${t(P.level_name)} (~${P.level_elo})`)
+    + (P.clock ? `<span class="clock" data-c="${botColor}"></span>` : '');
+  $('pbot').innerHTML = bar(userColor, P.username, '') + (P.clock ? `<span class="clock" data-c="${userColor}"></span>` : '');
+}
+function playRender() {
+  if (!P) return;
+  P._at = P._at || performance.now();
+  const last = P.history[P.history.length - 1];
+  const legalFrom = sel === null || busy ? [] : moveTargets(P.legal, sel, parseFen(P.fen));
+  drawBoard(P.fen, {
+    hl: last ? [sqIdx(last.uci.slice(0, 2)), sqIdx(last.uci.slice(2, 4))] : [],
+    selected: sel, dots: legalFrom, check: P.check,
+    arrows: hintArrow ? [[hintArrow, '#3d8bd9']]
+      : P.self && P.tips && P.tips.length && !busy ? P.tips.map((t, i) => [t.uci, i ? '#3d8bd966' : '#3d8bd9']).reverse() : [],
+  });
+  renderTips();
+  $('evalbar').classList.toggle('hide', !showEval);
+  evalBar(P);
+  $('undobtn').disabled = busy || !P.history.some(h => h.by === 'you');
+  $('undobtn').textContent = P.self ? t('↶ Undo move') : t('↶ Take back');
+  $('hintbtn').disabled = busy || !P.legal.length;
+  $('resignbtn').disabled = busy || !!P.result;
+}
+function renderTips() {
+  const box = $('tips');
+  box.hidden = !(P && P.self && P.tips && P.tips.length && !busy);
+  if (box.hidden) return;
+  const side = P.fen.split(' ')[1] === 'w' ? 'White' : 'Black';
+  box.innerHTML = `<div class="tt">💡 ${t('Tips for {side}\'s next move', {side: t(side)})}</div>` + P.tips.map((tp, i) =>
+    `<div class="tip ${i ? 'alt' : ''}" data-uci="${tp.uci}"><span class="mv">${esc(sanL(tp.san))}</span><span><small>${esc(t(tp.label))}</small>${esc(tp.text)}</span></div>`).join('');
+  box.querySelectorAll('.tip').forEach(el => {
+    el.onclick = () => { if (!busy) sendMove(el.dataset.uci, parseFen(P.fen)); };
+    el.onmouseenter = () => { hintArrow = el.dataset.uci; drawPlayArrowsOnly(); };
+    el.onmouseleave = () => { hintArrow = null; drawPlayArrowsOnly(); };
+  });
+}
+function drawPlayArrowsOnly() {        // redraw the board for hover without rebuilding the tips list
+  const last = P.history[P.history.length - 1];
+  drawBoard(P.fen, {
+    hl: last ? [sqIdx(last.uci.slice(0, 2)), sqIdx(last.uci.slice(2, 4))] : [], selected: sel, check: P.check,
+    arrows: hintArrow ? [[hintArrow, '#3d8bd9']] : P.tips.map((t, i) => [t.uci, i ? '#3d8bd966' : '#3d8bd9']).reverse(),
+  });
+}
+function msgHtml(h, i) {
+  if (h.by === 'you') {
+    const c = CLS[h.cls];
+    const lastYou = i === P.history.map(x => x.by).lastIndexOf('you');
+    const undo = lastYou && !P.result && ['mistake', 'blunder', 'miss'].includes(h.cls) ? `<br><button class="primary" data-undo>${t('↶ Take it back')}</button>` : '';
+    return `<div class="msg"><div class="who you"><img src="${img(P.user === 'white' ? 'P' : 'p')}"></div><div class="txt" style="border-left-color:${c.c}">`
+      + `<div class="h" style="color:${c.c}">${dot(h.cls)} ${P.self ? t('{side}: {san} is {verdict}', {side: t(h.side === 'white' ? 'White' : 'Black'), san: esc(sanL(h.san)), verdict: t(VERDICT[h.cls])})
+        : t('Your move {san} is {verdict}', {san: esc(sanL(h.san)), verdict: t(VERDICT[h.cls])})}</div>${esc(coachBody({...h, text: h.text}))}${undo}</div></div>`;
+  }
+  return `<div class="msg"><div class="who"><img src="${img('N')}"></div><div class="txt" style="border-left-color:#5c5955">`
+    + `<div class="h">${t('My move: {san}', {san: esc(sanL(h.san))})}</div>${esc(h.text)}</div></div>`;
+}
+function resultText() {
+  const why = P.reason === 'resignation' ? t('by resignation') : P.reason === 'checkmate' ? t('by checkmate') : P.reason === 'timeout' ? t('on time') : `(${t(P.reason)})`;
+  if (P.self) return P.result === '1/2-1/2' ? `🤝 ${t('Draw')} ${why}.` : `🏁 ${t('{side} wins', {side: t(P.result === '1-0' ? 'White' : 'Black')})} ${why}!`;
+  const won = (P.result === '1-0') === (P.user === 'white'), draw = P.result === '1/2-1/2';
+  return draw ? `🤝 ${t('Draw')} ${why}.` : won ? `🏆 ${t('You won {why}!', {why})} ${t('Well played.')}` : `${t('The coach won {why}.', {why})} ${t('Let\'s look at what happened!')}`;
+}
+function renderChat(animateFrom = chatSeen) {
+  const box = $('chat');
+  let h = P.history.map(msgHtml).join('');
+  if (P.result && P.drill) h += `<div class="msg sys"><div class="txt"><b>${P.drill.success ? '🎉 ' + t('Solved! Well done.') : '😕 ' + t('Not solved this time.')}</b>`
+    + (P.drill.success ? '' : `<br><span>${esc(t(P.drill.tip))}</span>`)
+    + `<br><button class="primary" data-drill="${P.drill.id}">${t('↻ Try again')}</button> <button data-drills>${t('Other endgames')}</button></div></div>`;
+  else if (P.result) h += `<div class="msg sys"><div class="txt"><b>${resultText()}</b><br><button class="primary" data-review>${t('📊 Review this game')}</button></div></div>`;
+  if (!P.history.length && !P.result && P.drill) h = `<div class="msg"><div class="who"><img src="${img('N')}"></div><div class="txt"><div class="h">🏁 ${t(P.drill.title)}</div>${esc(t(P.drill.tip))}</div></div>`;
+  else if (!P.history.length && !P.result) h = P.self
+    ? `<div class="msg"><div class="who"><img src="${img('N')}"></div><div class="txt"><div class="h">${t('Practice mode')}</div>${t('You play both sides. Below you always see tips for the next move – click one to play it, or make your own move. I\'ll rate every move, and you can undo as often as you like.')}</div></div>`
+    : `<div class="msg"><div class="who"><img src="${img('N')}"></div><div class="txt"><div class="h">${t('Let\'s play!')}</div>${t('I\'ll explain every move – yours and mine. Drag a piece, or click it and then the square where it should go.')}</div></div>`;
+  box.innerHTML = h;
+  [...box.children].forEach((el, i) => { if (i < animateFrom) el.style.animation = 'none'; });
+  chatSeen = P.history.length;
+  box.scrollTop = box.scrollHeight;
+  box.querySelectorAll('[data-undo]').forEach(b => b.onclick = undoMove);
+  box.querySelectorAll('[data-review]').forEach(b => b.onclick = reviewGame);
+  box.querySelectorAll('[data-drill]').forEach(b => b.onclick = () => startDrill(b.dataset.drill));
+  box.querySelectorAll('[data-drills]').forEach(b => b.onclick = () => openTraining('end'));
+}
+function addTyping() {
+  const box = $('chat');
+  box.insertAdjacentHTML('beforeend', `<div class="msg" id="typing"><div class="who"><img src="${img('N')}"></div><div class="txt typing"><span></span><span></span><span></span></div></div>`);
+  box.scrollTop = box.scrollHeight;
+}
+const playCtx = {
+  canPick(s) {
+    if (busy || !P || P.result || !P.legal.length) return false;
+    const p = parseFen(P.fen)[s], side = P.self ? (P.fen.split(' ')[1] === 'w' ? 'white' : 'black') : P.user;
+    return p && (p === p.toUpperCase()) === (side === 'white');
+  },
+  tryMove(from, to, dragged) {
+    if (busy || !P) return false;
+    const b = parseFen(P.fen);
+    return withPromotion(P.legal, from, to, b, dragged, (uci, d) => sendMove(uci, b, d));
+  },
+  redraw: () => playRender(),
+};
+async function sendMove(uci, b, dragged) {
+  busy = true; hintArrow = null;
+  const to = sqIdx(uci.slice(2, 4));
+  let botMoved = false;
+  sel = null; $('tips').hidden = true;
+  drawBoard(applyMove(b, uci), {hl: [sqIdx(uci.slice(0, 2)), to]});
+  if (!dragged) slide(pieceMoves(b, uci));
+  localMoveSound(b, uci);
+  playRenderButtons();
+  addTyping();
+  try {
+    const r = await api('/api/play/move', {uci});
+    r.state._at = performance.now();
+    const st = r.state, mine = st.history.filter(h => h.by === 'you').pop();
+    botMoved = st.history[st.history.length - 1].by === 'coach' && st.history.length > P.history.length + 1;
+    // 1) feedback on your move
+    P = {...st, history: st.history.slice(0, botMoved ? -1 : undefined), fen: r.mid_fen, legal: [], check: null};
+    if (!botMoved) P = st;
+    renderChat(); verdictSound(mine.cls);           // the move sound already played when the piece moved
+    // 2) the coach answers
+    if (botMoved) {
+      addTyping();
+      await sleep(650);
+      const bot = st.history[st.history.length - 1];
+      P = st; playRender();
+      slide(pieceMoves(parseFen(r.mid_fen), bot.uci)); moveSound(bot, false);
+      renderChat();
+    }
+    if (P.result) setTimeout(() => play(P.drill && P.drill.success ? 'correct' : 'end'), 250);
+    if (P.drill && P.drill.success) { try { const d = JSON.parse(localStorage.getItem('coach-drills') || '{}'); d[P.drill.id] = 1; localStorage.setItem('coach-drills', JSON.stringify(d)); } catch (e) {} }
+  } catch (e) {
+    alert(t(e.message));
+    try { P = await api('/api/play/state'); P._at = performance.now(); } catch (e2) {}
+    renderChat();
+  } finally {
+    busy = false;
+    if (botMoved) setTimeout(() => !busy && playRender(), 300); else playRender();   // let the coach's piece finish sliding
+  }
+}
+function playRenderButtons() { $('undobtn').disabled = $('hintbtn').disabled = $('resignbtn').disabled = true; }
+async function undoMove() {
+  if (busy) return;
+  busy = true; playRenderButtons();
+  const old = P;
+  try { P = await api('/api/play/undo', {}); P._at = performance.now(); hintArrow = null; play('move'); } catch (e) { alert(t(e.message)); }
+  busy = false; sel = null; renderChat(P.history.length); playRender();
+  const undone = old.history.slice(P.history.length).reverse();     // newest first
+  let b = parseFen(P.fen), back = [];
+  for (const h of undone.reverse()) { back.push(...pieceMoves(b, h.uci).map(([f, t]) => [t, f])); b = applyMove(b, h.uci); }
+  if (undone.length === 1) slide(back);
+}
+$('undobtn').onclick = undoMove;
+$('hintbtn').onclick = async () => {
+  if (busy) return;
+  try {
+    const h = await api('/api/play/hint', {});
+    hintArrow = h.uci; playRender();
+    $('chat').insertAdjacentHTML('beforeend', `<div class="msg"><div class="who"><img src="${img('N')}"></div><div class="txt" style="border-left-color:#3d8bd9"><div class="h">💡 ${t('Hint: try {san}', {san: esc(sanL(h.san))})}</div>${esc(h.text)}</div></div>`);
+    $('chat').scrollTop = $('chat').scrollHeight;
+  } catch (e) { alert(t(e.message)); }
+};
+$('resignbtn').onclick = async () => {
+  if (busy || !confirm(t('Really resign this game?'))) return;
+  try { P = await api('/api/play/resign', {}); P._at = performance.now(); play('end'); renderChat(); playRender(); } catch (e) { alert(t(e.message)); }
+};
+async function reviewGame() {
+  try {
+    const r = await api('/api/play/review', {});
+    wantReview = r.id;
+    const reviews = (await api('/api/state')).reviews;
+    if (reviews.some(x => x.id === r.id)) { wantReview = null; return openReview(r.id); }
+    $('chat').insertAdjacentHTML('beforeend', `<div class="msg sys"><div class="txt">⏳ ${t('Analyzing the game – the review opens in a moment…')}</div></div>`);
+    $('chat').scrollTop = $('chat').scrollHeight;
+  } catch (e) { alert(t(e.message)); }
+}
+
+// clocks: the server sends the remaining time; the page counts down between updates
+const fmtTime = s => { s = Math.max(0, s); return s < 10 ? s.toFixed(1) : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`; };
+let flagSent = false;
+function tickClocks() {
+  if (mode !== 'play' || !P || !P.clock) return;
+  if (!P._at) P._at = performance.now();
+  for (const el of document.querySelectorAll('.clock')) {
+    const c = el.dataset.c, run = P.running === c && !busy;
+    let left = P.clock[c];
+    if (P.running === c) left -= P.elapsed + (performance.now() - P._at) / 1000;
+    el.textContent = fmtTime(left);
+    el.classList.toggle('run', P.running === c);
+    el.classList.toggle('low', left < 20);
+    if (run && left <= 0 && c === P.user && !flagSent && !P.result) {
+      flagSent = true;
+      api('/api/play/flag', {}).then(st => { P = st; P._at = performance.now(); flagSent = false; renderChat(); playRender(); play('end'); }).catch(() => { flagSent = false; });
+    }
+  }
+}
+setInterval(tickClocks, 100);
+
+// ---------- training: openings + endgames ----------
+const TR = {view: 'open', name: null, color: 'white', moves: [], step: null, correct: 0, wrong: 0, msg: '', hint: false, list: null, done: false};
+try { Object.assign(TR, JSON.parse(localStorage.getItem('coach-train') || '{}'), {moves: [], step: null}); } catch (e) {}
+$('trainbtn').onclick = () => openTraining();
+$('segopen').onclick = () => openTraining('open');
+$('segend').onclick = () => openTraining('end');
+async function openTraining(view) {
+  if (view) TR.view = view;
+  setMode('train');
+  $('segopen').classList.toggle('on', TR.view === 'open'); $('segend').classList.toggle('on', TR.view === 'end');
+  if (TR.view === 'end') return renderDrills();
+  if (!TR.list) { try { TR.list = await api('/api/openings'); } catch (e) { TR.list = []; } }
+  if (!TR.step) { drawBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'); trainSetup(); }
+  else trainRender();
+}
+function trainSetup() {
+  flipped = TR.color === 'black';
+  $('ptop').innerHTML = $('pbot').innerHTML = '';
+  const opt = o => `<option value="${esc(o.name)}" ${o.name === TR.name ? 'selected' : ''}>${esc(o.name)}${o.yours ? ` (${t('you: {n}×', {n: o.yours})})` : ''}</option>`;
+  const mine = TR.list.filter(o => o.yours), pop = TR.list.filter(o => !o.yours && o.popular), rest = TR.list.filter(o => !o.yours && !o.popular);
+  if (!TR.name) TR.name = (mine[0] || pop[0] || TR.list[0] || {}).name;
+  $('trainbody').innerHTML = `
+    <p style="margin-top:0">${t('Learn the first moves of an opening. I play the other side with real opening-book moves – you have to find the right moves.')}</p>
+    <div class="field"><label>${t('Opening')}</label><select id="trname">
+      ${mine.length ? `<optgroup label="${t('Your openings')}">${mine.map(opt).join('')}</optgroup>` : ''}
+      <optgroup label="${t('Popular')}">${pop.map(opt).join('')}</optgroup>
+      <optgroup label="${t('All openings')}">${rest.map(opt).join('')}</optgroup></select></div>
+    <div class="field"><label>${t('Play as')}</label><div class="tcopts" id="trcolor">
+      <button data-c="white" class="${TR.color === 'white' ? 'on' : ''}">${t('White')}</button><button data-c="black" class="${TR.color === 'black' ? 'on' : ''}">${t('Black')}</button></div></div>
+    <button class="primary" id="trstart" style="width:100%">${t('Start training')}</button>`;
+  $('trname').onchange = e => { TR.name = e.target.value; const o = TR.list.find(x => x.name === TR.name); if (o && o.color) { TR.color = o.color; trainSetup(); } };
+  $('trcolor').querySelectorAll('button').forEach(b => b.onclick = () => { TR.color = b.dataset.c; trainSetup(); });
+  $('trstart').onclick = () => trainStart();
+}
+async function trainStart() {
+  try { localStorage.setItem('coach-train', JSON.stringify({name: TR.name, color: TR.color, view: 'open'})); } catch (e) {}
+  Object.assign(TR, {moves: [], correct: 0, wrong: 0, msg: '', hint: false, done: false, tried: null});
+  flipped = TR.color === 'black';
+  try { TR.step = await api('/api/opening', {name: TR.name, color: TR.color, moves: []}); } catch (e) { return alert(t(e.message)); }
+  if (TR.step.coach) TR.moves.push(TR.step.coach.uci);
+  trainRender(true);
+}
+const trainCtx = {
+  canPick(s) {
+    if (busy || !TR.step || TR.done || TR.tried) return false;
+    const pc = parseFen(TR.step.fen)[s];
+    return pc && (pc === pc.toUpperCase()) === (TR.color === 'white');
+  },
+  targets: s => moveTargets(TR.step.legal, s, parseFen(TR.step.fen)),
+  tryMove(from, to, dragged) { return withPromotion(TR.step.legal, from, to, parseFen(TR.step.fen), dragged, trainMove); },
+  redraw: () => trainRender(),
+};
+function trainRender(animateCoach) {
+  const st = TR.step, b = parseFen(st.fen), last = TR.moves[TR.moves.length - 1];
+  const bar = (c, label) => `<div class="av"><img src="${img(c === 'white' ? 'K' : 'k')}"></div><span class="nm">${esc(label)}</span>`;
+  const coachC = TR.color === 'white' ? 'black' : 'white';
+  $('ptop').innerHTML = bar(flipped ? 'white' : 'black', (flipped ? 'white' : 'black') === TR.color ? t('You') : 'Coach');
+  $('pbot').innerHTML = bar(flipped ? 'black' : 'white', (flipped ? 'black' : 'white') === TR.color ? t('You') : 'Coach');
+  drawBoard(TR.board || st.fen, {
+    hl: TR.tried ? [sqIdx(TR.tried.slice(0, 2)), sqIdx(TR.tried.slice(2, 4))] : last ? [sqIdx(last.slice(0, 2)), sqIdx(last.slice(2, 4))] : [],
+    selected: sel, dots: sel === null ? [] : trainCtx.targets(sel),
+    arrows: TR.hint && st.book[0] ? [[st.book[0].uci, '#3d8bd9']] : [],
+  });
+  if (animateCoach && st.coach) { const prevB = parseFen(st.fen); slide(pieceMoves(applyMoveBack(prevB, st.coach.uci), st.coach.uci)); }
+  const moveNo = Math.floor(st.ply / 2) + 1;
+  const head = TR.done ? `🎉 ${t('Line complete!')}` : t('Find the next move in the {name}', {name: esc(st.line)});
+  const body = TR.done
+    ? t('You know this line up to move {n}. Correct: {c}, mistakes: {w}.', {n: Math.ceil(st.ply / 2), c: TR.correct, w: TR.wrong})
+    : (TR.msg || (st.coach ? t('I played <b>{san}</b>. Your move!', {san: esc(sanL(st.coach.san))}) : t('Your move!')));
+  $('trainbody').innerHTML = `
+    <div id="pzcoach"><div class="avatar"><img class="coachav" src="${img('N')}" alt=""></div><div class="bubble fade"><div class="h">${head}</div>${body}</div></div>
+    <div class="trstats"><div class="pzstat"><b>${moveNo}</b><span>${t('Move')}</span></div><div class="pzstat"><b style="color:#a7d878">${TR.correct}</b><span>${t('Correct')}</span></div><div class="pzstat"><b style="color:#ff8a7a">${TR.wrong}</b><span>${t('Mistakes')}</span></div></div>
+    <div id="pzbtns">${TR.done ? '' : `<button id="trhint">💡 ${t('Hint')}</button>`}<button id="trrestart">↻ ${t('Restart')}</button><button id="trother">${t('Other opening')}</button></div>`;
+  if (!TR.done) $('trhint').onclick = () => { TR.hint = true; trainRender(); };
+  $('trrestart').onclick = () => trainStart();
+  $('trother').onclick = () => { TR.step = null; openTraining('open'); };
+}
+// pieceMoves needs the board *before* the coach's move – rebuild it by moving the piece back
+function applyMoveBack(after, uci) {
+  const b = after.slice(), f = sqIdx(uci.slice(0, 2)), to = sqIdx(uci.slice(2, 4));
+  b[f] = b[to]; b[to] = null;
+  if ((b[f] === 'K' || b[f] === 'k') && Math.abs(f % 8 - to % 8) === 2) {
+    const r = Math.floor(f / 8) * 8, [rf, rt] = to % 8 === 6 ? [r + 7, r + 5] : [r, r + 3];
+    b[rf] = b[rt]; b[rt] = null;
+  }
+  return b;
+}
+async function trainMove(uci, dragged) {
+  const st = TR.step, b = parseFen(st.fen), ok = st.book.find(x => x.uci === uci);
+  sel = null; TR.hint = false;
+  TR.board = applyMove(b, uci); TR.tried = uci;
+  drawBoard(TR.board, {hl: [sqIdx(uci.slice(0, 2)), sqIdx(uci.slice(2, 4))]});
+  if (!dragged) slide(pieceMoves(b, uci));
+  localMoveSound(b, uci);
+  if (!ok) {
+    TR.wrong++;
+    TR.msg = `<b style="color:#e5533d">${t('Not in this line.')}</b> ` + t('In the {name} the move here is <b>{san}</b>. Try it!', {name: esc(st.line), san: esc(sanL(st.book[0].san))});
+    setTimeout(() => { play('wrong'); flash('shake'); TR.board = null; TR.tried = null; TR.hint = true; trainRender();
+      slide(pieceMoves(b, uci).map(([f, t2]) => [t2, f])); }, 650);
+    return;
+  }
+  TR.correct++;
+  busy = true;
+  TR.moves.push(uci);
+  try {
+    const next = await api('/api/opening', {name: TR.name, color: TR.color, moves: TR.moves});
+    await sleep(next.coach ? 500 : 150);
+    if (next.coach) TR.moves.push(next.coach.uci);
+    TR.step = next; TR.board = null; TR.tried = null;
+    TR.done = next.done;
+    TR.msg = `<b style="color:#5d9b2c">✓ ${esc(sanL(ok.san))}</b> – ${t('correct!')} ` + (next.coach ? t('I answer <b>{san}</b>. Your move!', {san: esc(sanL(next.coach.san))}) : '');
+    busy = false;
+    trainRender(true);
+    if (next.coach) localMoveSound(applyMoveBack(parseFen(next.fen), next.coach.uci), next.coach.uci);
+    if (TR.done) setTimeout(() => { play('correct'); flash('glow'); }, 300);
+  } catch (e) { busy = false; alert(t(e.message)); }
+}
+async function renderDrills() {
+  drawBoard('8/8/8/4k3/8/8/8/3QK3 w - - 0 1');
+  $('ptop').innerHTML = $('pbot').innerHTML = '';
+  let drills = [];
+  try { drills = await api('/api/drills'); } catch (e) {}
+  let solved = {};
+  try { solved = JSON.parse(localStorage.getItem('coach-drills') || '{}'); } catch (e) {}
+  const icon = {mate: '♚', promote: '👑', draw: '🤝'};
+  $('trainbody').innerHTML = `<p style="margin-top:0">${t('Practice the most important basic endgames against the strongest coach level.')}</p>`
+    + drills.map(d => `<div class="drill ${solved[d.id] ? 'ok' : ''}"><span class="di">${icon[d.goal]}</span><div><b>${t(d.title)} ${solved[d.id] ? '✅' : ''}</b>`
+      + `<span>${t({mate: 'Goal: checkmate', promote: 'Goal: promote the pawn', draw: 'Goal: hold the draw'}[d.goal])}</span></div><button class="primary" data-d="${d.id}">${t('Go!')}</button></div>`).join('');
+  $('trainbody').querySelectorAll('[data-d]').forEach(b => b.onclick = () => startDrill(b.dataset.d));
+}
+async function startDrill(id) {
+  try { enterPlay(await api('/api/play/new', {drill: id}), true); } catch (e) { alert(t(e.message)); }
+}
+
+// ---------- review tab ----------
+$('reviewtab').onclick = () => {
+  if (R) { setMode('review'); flipped = R.my_color === 'black'; setPlayers(); render(); }
+  else setMode('welcome');
+};
+
+// ---------- puzzles ----------
+const Z = {p: null, ov: null};
+const puzzleCtx = {
+  canPick(s) {
+    const b = parseFen(Z.p.fen), pc = b[s];
+    return !Z.solved && !Z.tried && pc && (pc === pc.toUpperCase()) === (Z.p.color === 'white');
+  },
+  targets: s => moveTargets(Z.p.legal, s, parseFen(Z.p.fen)),
+  tryMove(from, to, dragged) {
+    return withPromotion(Z.p.legal, from, to, parseFen(Z.p.fen), dragged, puzzleMove);
+  },
+  redraw: () => puzzleRender(),
+};
+$('puzzlebtn').onclick = () => loadPuzzle();
+async function loadPuzzle(skip) {
+  const q = new URLSearchParams();
+  if (skip) q.set('skip', skip);
+  if (Z.theme) q.set('theme', Z.theme);
+  try { Z.ov = await api('/api/puzzles?' + q); }
+  catch (e) { return alert(t(e.message)); }
+  Object.assign(Z, {p: Z.ov.next, tried: null, solved: false, failed: false, reported: false, board: null, anim: null, show: false, msg: ''});
+  setMode('puzzle');
+  if (Z.p) {
+    flipped = Z.p.color === 'black';
+    const bar = (c, label) => `<div class="av"><img src="${img(c === 'white' ? 'K' : 'k')}"></div><span class="nm">${esc(label)}</span>`;
+    $('ptop').innerHTML = bar(flipped ? 'white' : 'black', Z.p.color === (flipped ? 'white' : 'black') ? t('You') : t('Opponent'));
+    $('pbot').innerHTML = bar(flipped ? 'black' : 'white', Z.p.color === (flipped ? 'black' : 'white') ? t('You') : t('Opponent'));
+  }
+  puzzleRender();
+}
+function puzzleStats() {
+  const o = Z.ov, th = o.themes || {};
+  $('pzthemes').innerHTML = `<button class="${!Z.theme ? 'on' : ''}" data-th="">${t('All')}</button>`
+    + Object.entries(th).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<button class="${Z.theme === k ? 'on' : ''}" data-th="${k}">${motifName(k)} · ${n}</button>`).join('');
+  $('pzthemes').querySelectorAll('button').forEach(b => b.onclick = () => { Z.theme = b.dataset.th || null; loadPuzzle(); });
+  $('pzstats').innerHTML = [[o.due, t('Due')], [o.solved, t('Solved')], [o.mastered, t('Mastered')], [o.streak + (o.streak >= 3 ? '🔥' : ''), t('Streak')]]
+    .map(([v, l]) => `<div class="pzstat"><b>${v}</b><span>${l}</span></div>`).join('');
+}
+function puzzleRender() {
+  puzzleStats();
+  const btns = $('pzbtns');
+  btns.innerHTML = '';
+  const pbtn = (label, fn, primary) => { const b = document.createElement('button'); b.textContent = label; if (primary) b.className = 'primary'; b.onclick = fn; btns.appendChild(b); };
+  if (!Z.p) {
+    drawBoard('8/8/8/8/8/8/8/8 w - - 0 1');
+    $('ptop').innerHTML = $('pbot').innerHTML = '';
+    $('pzic').style.display = 'none';
+    $('pztext').innerHTML = Z.ov.total
+      ? `<div class="h">🎉 ${t('All done for now!')}</div>${t('You have practiced all your puzzles. Solved ones come back after a while so you don\'t forget them – play and review more games for new puzzles.')}`
+      : `<div class="h">${t('No puzzles yet')}</div>${t('Puzzles are made from the mistakes in your reviewed games. Review a few games first!')}`;
+    return;
+  }
+  const p = Z.p, side = p.color === 'white' ? t('White') : t('Black');
+  drawBoard(Z.board || p.fen, {
+    selected: sel, dots: sel === null ? [] : puzzleCtx.targets(sel),
+    hl: Z.tried ? [sqIdx(Z.tried.slice(0, 2)), sqIdx(Z.tried.slice(2, 4))] : [],
+    arrows: Z.show ? [[p.best_uci, '#81b64c']] : [],
+  });
+  if (Z.anim) { slide(Z.anim); Z.anim = null; }
+  const ic = $('pzic');
+  ic.style.display = '';
+  ic.textContent = Z.solved ? '✓' : '?'; ic.style.background = Z.solved ? '#81b64c' : CLS[p.cls].c;
+  const intro = t('In your game {game} (move {n}) you played <b>{san}</b> here – {verdict}.',
+    {game: esc(p.game), n: p.move_no, san: esc(sanL(p.played)), verdict: t(VERDICT[p.cls])});
+  $('pztext').innerHTML = `<div class="h">${t('Find the best move for {side}', {side})}</div>`
+    + (p.motif && MOTIF[p.motif] && (Z.solved || Z.show) ? `<div class="mchips"><span class="mchip">${t('Theme')}: ${motifName(p.motif)}</span></div>` : '')
+    + (Z.msg || intro + ' ' + t('Can you find something better?'));
+  $('pztext').classList.remove('fade'); void $('pztext').offsetWidth; $('pztext').classList.add('fade');
+  if (Z.solved || Z.show) {
+    pbtn(t('Next puzzle ▶'), () => loadPuzzle(p.id), true);
+    pbtn(t('See the game'), async () => { await openReview(p.review_id); go(p.ply); });
+  } else {
+    pbtn(t('Show solution'), () => {
+      Z.show = true; report(false);
+      Z.msg = t('The best move was <b>{san}</b>.', {san: esc(sanL(p.best_san))}) + '<br><small style="color:#77756f">' + esc(p.text) + '</small>';
+      puzzleRender();
+    });
+    pbtn(t('Skip'), () => loadPuzzle(p.id));
+  }
+}
+function report(ok) {
+  if (Z.reported) return;
+  Z.reported = true;
+  api('/api/puzzles/result', {id: Z.p.id, ok}).then(o => { Z.ov = o; puzzleStats(); }).catch(() => {});
+}
+function puzzleMove(uci, dragged) {
+  const p = Z.p, b = parseFen(p.fen);
+  sel = null;
+  Z.tried = uci; Z.board = applyMove(b, uci); Z.anim = dragged ? null : pieceMoves(b, uci);
+  if (p.good.includes(uci)) {
+    Z.solved = true; Z.show = true;
+    report(!Z.failed);
+    localMoveSound(b, uci);
+    setTimeout(() => { play('correct'); flash('glow'); }, 180);
+    Z.msg = `<b style="color:#5d9b2c">${t('Correct! 🎉')}</b> ` + (uci === p.best_uci ? t('That is the best move.') : t('That is a strong move too.'))
+      + '<br><small style="color:#77756f">' + esc(p.text) + '</small>';
+  } else {
+    Z.failed = true; report(false);
+    Z.msg = `<b style="color:#e5533d">${t('Not quite.')}</b> ${t('Try again!')}`;
+    localMoveSound(b, uci);
+    const id = p.id;
+    setTimeout(() => {
+      if (!Z.p || Z.p.id !== id || Z.solved) return;
+      play('wrong'); flash('shake');
+      Z.board = null; Z.tried = null; Z.anim = pieceMoves(b, uci).map(([f, t2]) => [t2, f]);
+      puzzleRender();
+    }, 650);
+  }
+  puzzleRender();
+}
+
+// ---------- progress page ----------
+$('statsbtn').onclick = async () => {
+  setMode('stats');
+  $('statsview').innerHTML = `<div class="card empty">${t('Loading…')}</div>`;
+  try {
+    const [G2, prof] = await Promise.all([api('/api/stats'), api('/api/profile').catch(() => ({}))]);
+    renderStats(G2, prof);
+  } catch (e) { $('statsview').innerHTML = `<div class="card empty err">${esc(e.message)}</div>`; }
+};
+const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const SERIES = {coach: '#3987e5', cc: '#d95926'};
+const RES_COL = {win: '#5d9b2c', loss: '#c0392b', draw: '#6b6966'};
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 127397 + c.charCodeAt(0))) : '';
+const PIECE_NAME = {P: 'Pawn', N: 'Knight', B: 'Bishop', R: 'Rook', Q: 'Queen', K: 'King'};
+
+function renderStats(G2, prof) {
+  const box = $('statsview');
+  if (!G2.length) { box.innerHTML = heroHtml(prof, []) + `<div class="card empty">${t('No reviewed games yet.')}</div>`; return; }
+  const last = G2.slice(-10), prev = G2.slice(-20, -10);
+  const bad = g => (g.counts.blunder || 0) + (g.counts.mistake || 0);
+  const w = G2.filter(g => g.result === 'win').length, l = G2.filter(g => g.result === 'loss').length, d = G2.length - w - l;
+  const accNow = avg(last.map(g => g.accuracy)), accPrev = avg(prev.map(g => g.accuracy));
+  const errNow = avg(last.map(bad)), errPrev = avg(prev.map(bad));
+  const delta = (now, before, goodUp) => before == null || prev.length < 5 ? `<span>${t('vs. earlier games: not enough games yet')}</span>`
+    : (() => { const dd = now - before, good = goodUp ? dd >= 0 : dd <= 0;
+      return `<span class="${good ? 'up' : 'down'}">${dd >= 0 ? '▲' : '▼'} ${Math.abs(dd).toFixed(1)}</span> ${t('vs. the 10 games before')}`; })();
+  let streak = 0;
+  for (let i = G2.length - 1; i >= 0 && G2[i].result === 'win'; i--) streak++;
+  const best = G2.reduce((a, b) => b.accuracy > a.accuracy ? b : a), worst = G2.reduce((a, b) => b.accuracy < a.accuracy ? b : a);
+  const phaseAvg = ph => avg(G2.map(g => g.phases[ph]).filter(v => v != null));
+  const phases = ['opening', 'middlegame', 'endgame'].map(ph => [ph, phaseAvg(ph)]).filter(x => x[1] != null);
+  const tile = (icon, col, label, value, sub) => `<div class="tile" style="--tc:${col}"><span class="ic">${icon}</span><div class="l">${label}</div><div class="v">${value}</div><div class="d">${sub}</div></div>`;
+
+  box.innerHTML = heroHtml(prof, G2) + `
+    <div class="tiles">
+      ${tile('♟', '#3d8bd9', t('Games'), G2.length, `${w} ${t('wins')} · ${l} ${t('losses')} · ${d} ${t('draws')}`)}
+      ${tile('🏆', '#5d9b2c', t('Win rate'), pct(w, G2.length) + '%', t('{n} games', {n: G2.length}))}
+      ${tile('🎯', '#81b64c', t('Accuracy (last 10)'), accNow.toFixed(1) + '%', delta(accNow, accPrev, true))}
+      ${tile('⚠️', '#e5533d', t('Mistakes + blunders / game'), errNow.toFixed(1), delta(errNow, errPrev, false))}
+      ${tile('💎', '#1baca6', t('Best accuracy'), best.accuracy + '%', 'vs ' + esc(best.opponent))}
+      ${tile('🔥', '#f7c631', t('Win streak'), streak, streak ? t('wins in a row') : t('Win the next game!'))}
+    </div>
+    ${weekHtml(G2)}
+    <div class="card"><h3><span class="ico">💡</span>${t('Coach tips from your games')}</h3><div class="insights">${insights(G2, phases).map(([e, c, txt]) => `<div class="ins" style="--ic:${c}"><span class="e">${e}</span><div>${txt}</div></div>`).join('')}</div></div>
+    <div class="grid2">
+      <div class="card"><h3><span class="ico">📈</span>${t('Rating')}</h3><div class="chart" id="elochart"></div></div>
+      <div class="card"><h3><span class="ico">🎯</span>${t('Accuracy per game')}</h3>
+        <div class="legend"><span><i style="background:${SERIES.coach}"></i>${t('Coach')}</span><span><i style="background:${SERIES.cc};border-radius:50%"></i>chess.com</span></div>
+        <div class="chart" id="accchart"></div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3><span class="ico">📊</span>${t('Move quality')}</h3>${qualityHtml(G2)}</div>
+      <div class="card"><h3><span class="ico">⏱</span>${t('When do your mistakes happen?')}</h3>
+        <div class="legend"><span><i style="background:${SERIES.coach}"></i>${t('Mistakes')}</span><span><i style="background:${SERIES.cc}"></i>${t('Blunders')}</span></div>
+        <div class="chart" id="whenchart"></div>${timeTroubleHtml(G2)}</div>
+    </div>
+    <div class="card"><h3><span class="ico">⚠️</span>${t('Mistakes and blunders per game')}</h3>
+      <div class="legend"><span><i style="background:${SERIES.coach}"></i>${t('Mistakes')}</span><span><i style="background:${SERIES.cc}"></i>${t('Blunders')}</span></div>
+      <div class="chart" id="errchart"></div></div>
+    <div class="grid3">
+      <div class="card"><h3><span class="ico">⚖️</span>${t('White vs. Black')}</h3>${colorHtml(G2)}</div>
+      <div class="card"><h3><span class="ico">🏁</span>${t('How your games end')}</h3>${endingHtml(G2)}</div>
+      <div class="card"><h3><span class="ico">♞</span>${t('Mistakes by piece')}</h3>${pieceHtml(G2)}</div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3><span class="ico">🧭</span>${t('Average accuracy by phase')}</h3><div class="chart" id="phasechart"></div></div>
+      <div class="card"><h3><span class="ico">📖</span>${t('Your openings')}</h3>${openingTable(G2)}</div>
+    </div>
+    <div class="grid2">
+      ${gameCard(best, '💎', t('Your best game'), '#1baca6')}
+      ${gameCard(worst, '📉', t('Most to learn from'), '#e5533d')}
+    </div>`;
+  eloChart($('elochart'), G2);
+  lineChart($('accchart'), G2);
+  barChart($('errchart'), G2);
+  whenChart($('whenchart'), G2);
+  phaseChart($('phasechart'), phases);
+  box.querySelectorAll('.gcard').forEach(c => c.onclick = () => openReview(c.dataset.id));
+}
+function weekHtml(G2) {
+  const now = Date.now() / 1000, wk = 7 * 86400;
+  const tw = G2.filter(g => g.created > now - wk), lw = G2.filter(g => g.created <= now - wk && g.created > now - 2 * wk);
+  const acc = gs => gs.length ? avg(gs.map(g => g.accuracy)) : null;
+  const bl = gs => gs.length ? avg(gs.map(g => g.counts.blunder || 0)) : null;
+  const cmp = (a, b, upGood, fmt) => a == null ? '–' : fmt(a) + (b == null ? '' : ` <span class="${(a >= b) === upGood ? 'up' : 'down'}" style="font-size:13px">${a >= b ? '▲' : '▼'}${fmt(Math.abs(a - b))}</span>`);
+  if (!tw.length) return `<div class="card"><h3><span class="ico">📅</span>${t('This week')}</h3><div class="empty" style="padding:14px">${t('No games this week yet – play one!')}</div></div>`;
+  const best = tw.reduce((a, b) => b.accuracy > a.accuracy ? b : a);
+  return `<div class="card"><h3><span class="ico">📅</span>${t('This week')} <span style="text-transform:none;letter-spacing:0;font-weight:700;color:var(--faint)">${t('compared to last week')}</span></h3><div class="week tiles-week">
+    <div><b>${tw.length}${lw.length ? ` <span style="font-size:13px;color:var(--muted)">/ ${lw.length}</span>` : ''}</b><span>${t('Games')}</span></div>
+    <div class="tile-d"><b>${cmp(acc(tw), acc(lw), true, v => v.toFixed(1) + '%')}</b><span>${t('Accuracy')}</span></div>
+    <div><b>${cmp(bl(tw), bl(lw), false, v => v.toFixed(1))}</b><span>${t('Blunders / game')}</span></div>
+    <div><b>${best.accuracy}%</b><span>${t('Best game')}: vs ${esc(best.opponent)}</span></div></div></div>`;
+}
+function heroHtml(prof, G2) {
+  const name = (prof && prof.username) || $('user').value || t('You');
+  const av = prof && prof.avatar ? `<img src="${esc(prof.avatar)}" alt="">` : esc(name[0].toUpperCase());
+  const since = prof && prof.joined ? t('on chess.com since {d}', {d: new Date(prof.joined * 1000).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-US', {month: 'long', year: 'numeric'})}) : '';
+  const chips = Object.entries((prof && prof.ratings) || {}).map(([k, r]) => {
+    const rec = r.record || {};
+    return `<div class="rchip"><div class="k">${t(cap(k))}</div><div class="v">${r.last ?? '–'}</div><div class="s">${t('best')} ${r.best ?? '–'} · ${rec.win || 0}/${rec.loss || 0}/${rec.draw || 0}</div></div>`;
+  }).join('');
+  const pz = prof && prof.puzzles ? `<div class="rchip"><div class="k">🧩 ${t('Puzzles')}</div><div class="v">${prof.puzzles.solved}/${prof.puzzles.total}</div><div class="s">${t('solved')} · ${prof.puzzles.mastered} ${t('mastered')}</div></div>` : '';
+  return `<div class="card hero slidein"><div class="pav">${av}</div><div class="who"><b>${esc(name)} ${flag(prof && prof.country)}${prof && prof.status === 'premium' ? `<span class="badge2">Premium</span>` : ''}</b>
+    <span>${since}${since && G2.length ? ' · ' : ''}${G2.length ? t('{n} games reviewed', {n: G2.length}) : ''}</span></div><div class="rchips">${chips}${pz}</div></div>`;
+}
+function insights(G2, phases) {
+  const out = [], errs = G2.flatMap(g => g.errors);
+  const weakest = phases.slice().sort((a, b) => a[1] - b[1])[0];
+  if (weakest && phases.length > 1) out.push(['🧭', '#3d8bd9', t('Your weakest phase is the <b>{p}</b> ({v}% accuracy). Focus your training there.', {p: t(cap(weakest[0])), v: weakest[1].toFixed(0)})]);
+  if (errs.length >= 3) {
+    const b = {}; errs.forEach(e => { const k = Math.min(4, Math.floor((e.move - 1) / 10)); b[k] = (b[k] || 0) + 1; });
+    const [k, n] = Object.entries(b).sort((x, y) => y[1] - x[1])[0];
+    const range = +k === 4 ? t('after move 40') : t('between moves {a} and {b}', {a: k * 10 + 1, b: k * 10 + 10});
+    out.push(['⏱', '#f7c631', t('{p}% of your mistakes happen <b>{r}</b>. Slow down and check every move there.', {p: pct(n, errs.length), r: range})]);
+  }
+  const timed = errs.filter(e => e.clock != null);
+  if (timed.length >= 3) {
+    const low = timed.filter(e => e.clock < 30).length;
+    if (pct(low, timed.length) >= 30) out.push(['⌛', '#e5533d', t('<b>{p}%</b> of your mistakes come with less than 30 seconds left. Spend less time early in the game.', {p: pct(low, timed.length)})]);
+  }
+  const byPiece = {}; errs.forEach(e => byPiece[e.piece] = (byPiece[e.piece] || 0) + 1);
+  const top = Object.entries(byPiece).sort((a, b) => b[1] - a[1])[0];
+  if (top && top[1] >= 2) out.push(['♞', '#1baca6', t('Most of your mistakes are <b>{piece}</b> moves ({n}×). Before moving it, ask: is the square safe?', {piece: t(PIECE_NAME[top[0]]), n: top[1]})]);
+  const wr = c => { const gs = G2.filter(g => g.color === c); return gs.length >= 3 ? pct(gs.filter(g => g.result === 'win').length, gs.length) : null; };
+  const ww = wr('white'), wb = wr('black');
+  if (ww != null && wb != null && Math.abs(ww - wb) >= 25) {
+    const weak = ww < wb ? t('White') : t('Black');
+    out.push(['⚖️', '#a88865', t('You win {a}% with White and {b}% with Black – practice more openings as <b>{w}</b>.', {a: ww, b: wb, w: weak})]);
+  }
+  const onTime = G2.filter(g => g.result === 'loss' && g.end === 'time').length;
+  if (onTime >= 2) out.push(['⏰', '#e5533d', t('You lost <b>{n} games on time</b>. Use the clock more evenly.', {n: onTime})]);
+  if (!out.length) out.push(['🌱', '#81b64c', t('Play and review a few more games – then I can spot patterns in your play.')]);
+  return out.slice(0, 4);
+}
+function qualityHtml(G2) {
+  const keys = Object.keys(CLS), tot = {};
+  G2.forEach(g => keys.forEach(k => tot[k] = (tot[k] || 0) + (g.counts[k] || 0)));
+  const sum = keys.reduce((a, k) => a + tot[k], 0) || 1;
+  return `<div class="qbar">${keys.filter(k => tot[k]).map(k => `<i title="${t(CLS[k].n)}: ${tot[k]}" style="width:${tot[k] / sum * 100}%;background:${CLS[k].c}"></i>`).join('')}</div>`
+    + `<div class="qlist">${keys.map(k => `<div>${dot(k)}${t(CLS[k].n)}<b>${tot[k]}</b><small>${(tot[k] / sum * 100).toFixed(0)}%</small></div>`).join('')}</div>`;
+}
+function timeTroubleHtml(G2) {
+  const timed = G2.flatMap(g => g.errors).filter(e => e.clock != null);
+  if (!timed.length) return '';
+  const low = timed.filter(e => e.clock < 30).length;
+  return `<div class="small-legend" style="margin-top:10px">⌛ ${t('{a} of {b} mistakes with less than 30 seconds on the clock', {a: low, b: timed.length})}</div>`;
+}
+function colorHtml(G2) {
+  return '<div class="rows">' + ['white', 'black'].map(c => {
+    const gs = G2.filter(g => g.color === c), n = gs.length || 1;
+    const cnt = r => gs.filter(g => g.result === r).length;
+    return `<div class="r"><span><img src="${img(c === 'white' ? 'K' : 'k')}">${t(cap(c))}</span><div class="bar">`
+      + ['win', 'draw', 'loss'].filter(r => cnt(r)).map(r => `<i title="${t(r)}: ${cnt(r)}" style="width:${cnt(r) / n * 100}%;background:${RES_COL[r]}"></i>`).join('')
+      + `</div><b>${gs.length ? pct(cnt('win'), gs.length) + '%' : '–'}</b></div>`;
+  }).join('') + `<div class="small-legend">${['win', 'draw', 'loss'].map(r => `<span><i style="background:${RES_COL[r]}"></i>${t(r)}</span>`).join('')}<span>· % = ${t('win rate')}</span></div></div>`;
+}
+function endingHtml(G2) {
+  const kinds = ['checkmate', 'resignation', 'time', 'draw', 'abandoned', 'other'];
+  const names = {checkmate: '♚ ' + t('Checkmate'), resignation: '🏳 ' + t('Resignation'), time: '⏰ ' + t('On time'), draw: '🤝 ' + t('Draw'), abandoned: '🚪 ' + t('Abandoned'), other: '❔ ' + t('Other')};
+  const max = Math.max(1, ...kinds.map(k => G2.filter(g => g.end === k).length));
+  return '<div class="rows">' + kinds.map(k => {
+    const gs = G2.filter(g => g.end === k);
+    if (!gs.length) return '';
+    const wn = gs.filter(g => g.result === 'win').length, ls = gs.filter(g => g.result === 'loss').length, dr = gs.length - wn - ls;
+    return `<div class="r" style="grid-template-columns:120px 1fr 30px"><span>${names[k]}</span><div class="bar" style="width:${gs.length / max * 100}%">`
+      + [[wn, 'win'], [dr, 'draw'], [ls, 'loss']].filter(x => x[0]).map(([v, r]) => `<i title="${t(r)}: ${v}" style="flex:${v};background:${RES_COL[r]}"></i>`).join('')
+      + `</div><b>${gs.length}</b></div>`;
+  }).join('') + `<div class="small-legend">${['win', 'draw', 'loss'].map(r => `<span><i style="background:${RES_COL[r]}"></i>${t(r)}</span>`).join('')}</div></div>`;
+}
+function pieceHtml(G2) {
+  const by = {}; G2.flatMap(g => g.errors).forEach(e => by[e.piece] = (by[e.piece] || 0) + 1);
+  const rows = Object.entries(by).sort((a, b) => b[1] - a[1]);
+  if (!rows.length) return `<div class="empty" style="padding:20px">–</div>`;
+  const max = rows[0][1];
+  return '<div class="rows">' + rows.map(([pc, n]) => `<div class="r"><span><img src="${img(pc)}">${t(PIECE_NAME[pc])}</span>`
+    + `<div class="bar"><i style="width:${n / max * 100}%;background:${SERIES.cc}"></i></div><b>${n}</b></div>`).join('') + '</div>';
+}
+function gameCard(g, icon, title, col) {
+  return `<div class="card gcard" data-id="${esc(g.id)}" style="border-left:4px solid ${col}"><h3><span class="ico">${icon}</span>${title}</h3>
+    <div style="display:flex;align-items:baseline;gap:14px"><span class="big" style="color:${col}">${g.accuracy}%</span>
+    <span>vs <b>${esc(g.opponent)}</b> · <span class="res ${g.result}">${t(g.result)}</span> · ${esc(g.date)}</span></div>
+    <div class="small-legend">${(g.counts.blunder || 0)} ${t('Blunders')} · ${(g.counts.mistake || 0)} ${t('Mistakes')} · ${(g.counts.brilliant || 0) + (g.counts.great || 0)} ${t('great moves')} · ${t('Click to open the review')}</div></div>`;
+}
+const cap = s => s[0].toUpperCase() + s.slice(1);
+function tipAt(chart, x, y, html) {
+  let tip = chart.querySelector('.vtip');
+  if (!tip) { tip = document.createElement('div'); tip.className = 'vtip'; chart.appendChild(tip); }
+  if (html == null) { tip.style.opacity = 0; return; }
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const cw = chart.clientWidth, tw = tip.offsetWidth;
+  tip.style.left = Math.min(Math.max(0, x + 14), cw - tw) + 'px'; tip.style.top = Math.max(0, y - 10) + 'px';
+}
+function gameTip(g) {
+  return `<b>vs ${esc(g.opponent)}</b><span style="color:#9e9b98">${esc(g.date)} · ${t(g.result)}</span>`;
+}
+function frame(W, H, m, yMin, yMax, yTicks, fmt) {
+  const Y = v => m.t + (H - m.t - m.b) * (1 - (v - yMin) / (yMax - yMin || 1));
+  let s = '<g class="grid">' + yTicks.map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/>`).join('') + '</g>';
+  s += '<g class="axis">' + yTicks.map(v => `<text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${fmt(v)}</text>`).join('') + '</g>';
+  return {Y, s};
+}
+// generic one-series line (+ optional second dot series) with crosshair tooltip
+function trend(el, G2, {get, get2, color, color2, yMin, yMax, ticks, fmt, label, label2, H = 240}) {
+  const W = 900, m = {l: 44, r: 16, t: 14, b: 28}, n = G2.length;
+  const X = i => n === 1 ? (m.l + W - m.r) / 2 : m.l + (W - m.l - m.r) * i / (n - 1);
+  const {Y, s: grid} = frame(W, H, m, yMin, yMax, ticks, fmt);
+  const pts = G2.map((g, i) => [i, get(g)]).filter(p => p[1] != null);
+  let s = grid;
+  if (pts.length > 1) {
+    const line = pts.map(([i, v]) => `${X(i)},${Y(v)}`).join(' ');
+    s += `<polygon points="${X(pts[0][0])},${Y(yMin)} ${line} ${X(pts[pts.length - 1][0])},${Y(yMin)}" fill="${color}" opacity=".12"/>`
+       + `<polyline points="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;
+  }
+  pts.forEach(([i, v]) => s += `<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="${color}" stroke="#2c2a27" stroke-width="2"/>`);
+  if (get2) G2.forEach((g, i) => { const v = get2(g); if (v != null) s += `<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="${color2}" stroke="#2c2a27" stroke-width="2"/>`; });
+  const step = Math.max(1, Math.ceil(n / 8));
+  s += '<g class="axis">' + G2.map((g, i) => i % step ? '' : `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${i + 1}</text>`).join('') + '</g>';
+  s += `<line class="cross" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="#ffffff55" stroke-width="1" opacity="0"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}">${s}<rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent" style="cursor:pointer"/></svg>`;
+  const svg = el.querySelector('svg'), cross = svg.querySelector('.cross'), hit = svg.querySelector('rect');
+  const idx = e => { const r = svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W; return Math.max(0, Math.min(n - 1, Math.round(n === 1 ? 0 : (x - m.l) / (W - m.l - m.r) * (n - 1)))); };
+  hit.onmousemove = e => {
+    const i = idx(e), g = G2[i], sc = svg.getBoundingClientRect().width / W, v = get(g), v2 = get2 && get2(g);
+    cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('opacity', 1);
+    tipAt(el, X(i) * sc, Y(v ?? yMin) * sc, gameTip(g)
+      + (v != null ? `<div><span class="sw" style="background:${color}"></span>${label}: <b style="display:inline">${fmt(v)}</b></div>` : '')
+      + (v2 != null ? `<div><span class="sw" style="background:${color2}"></span>${label2}: <b style="display:inline">${fmt(v2)}</b></div>` : '')
+      + `<div style="color:#77756f;font-size:12px">${t('Click to open the review')}</div>`);
+  };
+  hit.onmouseleave = () => { cross.setAttribute('opacity', 0); tipAt(el); };
+  hit.onclick = e => openReview(G2[idx(e)].id);
+}
+function lineChart(el, G2) {
+  trend(el, G2, {get: g => g.accuracy, get2: g => g.chesscom, color: SERIES.coach, color2: SERIES.cc, yMin: 0, yMax: 100,
+    ticks: [0, 25, 50, 75, 100], fmt: v => (+v).toFixed(v % 1 ? 1 : 0) + '%', label: t('Coach'), label2: 'chess.com'});
+}
+function eloChart(el, G2) {
+  const vals = G2.map(g => g.my_elo).filter(v => v != null);
+  if (vals.length < 2) { el.innerHTML = `<div class="empty" style="padding:30px">${t('Not enough rated games yet.')}</div>`; return; }
+  const lo = Math.floor((Math.min(...vals) - 20) / 50) * 50, hi = Math.ceil((Math.max(...vals) + 20) / 50) * 50;
+  const step = Math.max(50, Math.ceil((hi - lo) / 4 / 50) * 50), ticks = [];
+  for (let v = lo; v <= hi; v += step) ticks.push(v);
+  trend(el, G2, {get: g => g.my_elo, color: '#81b64c', yMin: lo, yMax: ticks[ticks.length - 1], ticks, fmt: v => Math.round(v), label: t('Rating')});
+}
+function barChart(el, G2) {
+  const W = 900, H = 220, m = {l: 40, r: 16, t: 12, b: 28}, n = G2.length;
+  const vals = G2.map(g => [(g.counts.mistake || 0) + (g.counts.miss || 0), g.counts.blunder || 0]);
+  const yMax = Math.max(4, ...vals.map(v => v[0] + v[1]));
+  const ticks = [0, Math.round(yMax / 2), yMax];
+  const {Y, s: grid} = frame(W, H, m, 0, yMax, ticks, v => v);
+  const slot = (W - m.l - m.r) / n, bw = Math.min(36, slot * 0.6);
+  let s = grid;
+  vals.forEach(([mi, bl], i) => {
+    const x = m.l + slot * i + (slot - bw) / 2, yMi = Y(mi), yBl = Y(mi + bl);
+    if (mi) s += `<rect x="${x}" y="${yMi}" width="${bw}" height="${Y(0) - yMi}" rx="${bl ? 0 : 4}" fill="${SERIES.coach}"/>`;
+    if (bl) s += `<rect x="${x}" y="${yBl}" width="${bw}" height="${yMi - yBl - (mi ? 2 : 0)}" rx="4" fill="${SERIES.cc}"/>`;
+    s += `<rect class="hit" data-i="${i}" x="${m.l + slot * i}" y="${m.t}" width="${slot}" height="${H - m.t - m.b}" fill="transparent" style="cursor:pointer"/>`;
+  });
+  const step = Math.max(1, Math.ceil(n / 8));
+  s += '<g class="axis">' + G2.map((g, i) => i % step ? '' : `<text x="${m.l + slot * (i + .5)}" y="${H - 8}" text-anchor="middle">${i + 1}</text>`).join('') + '</g>';
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}">${s}</svg>`;
+  const svg = el.querySelector('svg');
+  svg.querySelectorAll('.hit').forEach(h => {
+    const i = +h.dataset.i, g = G2[i];
+    h.onmousemove = () => {
+      const sc = svg.getBoundingClientRect().width / W;
+      tipAt(el, (m.l + slot * (i + .5)) * sc, Y(vals[i][0] + vals[i][1]) * sc, gameTip(g)
+        + `<div><span class="sw" style="background:${SERIES.coach}"></span>${t('Mistakes')}: <b style="display:inline">${vals[i][0]}</b></div>`
+        + `<div><span class="sw" style="background:${SERIES.cc}"></span>${t('Blunders')}: <b style="display:inline">${vals[i][1]}</b></div>`);
+    };
+    h.onmouseleave = () => tipAt(el);
+    h.onclick = () => openReview(g.id);
+  });
+}
+function whenChart(el, G2) {
+  const B = [[1, 5], [6, 10], [11, 15], [16, 20], [21, 25], [26, 30], [31, 40], [41, 999]];
+  const vals = B.map(() => [0, 0]);
+  G2.flatMap(g => g.errors).forEach(e => { const k = B.findIndex(([a, b]) => e.move >= a && e.move <= b); vals[k][e.cls === 'blunder' ? 1 : 0]++; });
+  const W = 440, H = 200, m = {l: 30, r: 8, t: 10, b: 30}, n = B.length;
+  const yMax = Math.max(3, ...vals.map(v => v[0] + v[1]));
+  const {Y, s: grid} = frame(W, H, m, 0, yMax, [0, Math.round(yMax / 2), yMax], v => v);
+  const slot = (W - m.l - m.r) / n, bw = slot * 0.62;
+  let s = grid;
+  vals.forEach(([mi, bl], i) => {
+    const x = m.l + slot * i + (slot - bw) / 2, yMi = Y(mi), yBl = Y(mi + bl);
+    if (mi) s += `<rect x="${x}" y="${yMi}" width="${bw}" height="${Y(0) - yMi}" rx="${bl ? 0 : 3}" fill="${SERIES.coach}"/>`;
+    if (bl) s += `<rect x="${x}" y="${yBl}" width="${bw}" height="${yMi - yBl - (mi ? 2 : 0)}" rx="3" fill="${SERIES.cc}"/>`;
+    s += `<rect class="hit" data-i="${i}" x="${m.l + slot * i}" y="${m.t}" width="${slot}" height="${H - m.t - m.b}" fill="transparent"/>`;
+  });
+  s += '<g class="axis">' + B.map(([a, b], i) => `<text x="${m.l + slot * (i + .5)}" y="${H - 10}" text-anchor="middle">${b > 900 ? a + '+' : a + '–' + b}</text>`).join('') + '</g>';
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}">${s}</svg>`;
+  const svg = el.querySelector('svg');
+  svg.querySelectorAll('.hit').forEach(h => {
+    const i = +h.dataset.i;
+    h.onmousemove = () => {
+      const sc = svg.getBoundingClientRect().width / W;
+      tipAt(el, (m.l + slot * (i + .5)) * sc, Y(vals[i][0] + vals[i][1]) * sc, `<b>${t('Moves')} ${B[i][1] > 900 ? B[i][0] + '+' : B[i][0] + '–' + B[i][1]}</b>`
+        + `<div><span class="sw" style="background:${SERIES.coach}"></span>${t('Mistakes')}: <b style="display:inline">${vals[i][0]}</b></div>`
+        + `<div><span class="sw" style="background:${SERIES.cc}"></span>${t('Blunders')}: <b style="display:inline">${vals[i][1]}</b></div>`);
+    };
+    h.onmouseleave = () => tipAt(el);
+  });
+}
+function phaseChart(el, phases) {
+  if (!phases.length) { el.innerHTML = `<div class="empty">–</div>`; return; }
+  const W = 440, row = 46, H = phases.length * row, l = 110, r = 56;
+  let s = '';
+  phases.forEach(([ph, v], i) => {
+    const y = i * row + 10, w = (W - l - r) * v / 100;
+    s += `<text x="0" y="${y + 18}" fill="#ecebe9" font-size="14" font-weight="800">${t(cap(ph))}</text>`
+      + `<rect x="${l}" y="${y + 2}" width="${W - l - r}" height="22" rx="4" fill="#ffffff0d"/>`
+      + `<rect x="${l}" y="${y + 2}" width="${w}" height="22" rx="4" fill="${SERIES.coach}"><title>${v.toFixed(1)}%</title></rect>`
+      + `<text x="${W - r + 8}" y="${y + 18}" fill="#ecebe9" font-size="14" font-weight="900">${v.toFixed(1)}%</text>`;
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}">${s}</svg>`;
+}
+function openingTable(G2) {
+  const by = {};
+  for (const g of G2) {
+    const k = g.opening || '?';
+    (by[k] = by[k] || {n: 0, w: 0, l: 0, d: 0, acc: []}).n++;
+    by[k][g.result[0]]++; by[k].acc.push(g.accuracy);
+  }
+  const rows = Object.entries(by).sort((a, b) => b[1].n - a[1].n).slice(0, 8);
+  return `<table class="op"><tr><th>${t('Opening')}</th><th style="text-align:right">${t('Games')}</th><th style="text-align:right">${t('W / L / D')}</th><th style="text-align:right">${t('Accuracy')}</th></tr>`
+    + rows.map(([k, o]) => `<tr><td>${esc(k)}</td><td class="n">${o.n}</td><td class="n"><span class="win">${o.w}</span> / <span class="loss">${o.l}</span> / ${o.d}</td><td class="n">${avg(o.acc).toFixed(1)}%</td></tr>`).join('')
+    + '</table>';
+}
+
+$('langbtn').onclick = async () => {
+  lang = lang === 'de' ? 'en' : 'de';
+  try { localStorage.setItem('coach-lang', lang); } catch (e) {}
+  try { await api('/api/lang', {lang}); } catch (e) {}
+  applyLang(); poll();
+  if (mode === 'review' && R) { const k = cur; await openReview(R.id); go(k); }
+  else if (mode === 'play' && P) { P = await api('/api/play/state'); P._at = performance.now(); playPlayers(); playRender(); renderChat(P.history.length); $('playtitle').textContent = P.self ? t('Practice – you play both sides') : t('Play vs Coach'); }
+  else if (mode === 'puzzle') loadPuzzle();
+  else if (mode === 'stats') $('statsbtn').click();
+};
+
+applyLang();
+applyPrefs();
+const langReady = api('/api/lang', {lang}).catch(() => {});
+poll(); setInterval(poll, 3000);
+langReady.then(() => { if (location.hash.length > 1) openReview(decodeURIComponent(location.hash.slice(1))).catch(() => {}); });
+</script>
+</body></html>

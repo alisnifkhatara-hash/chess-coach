@@ -1,0 +1,3 @@
+Piece set "fresca" by sadsnake1 (cardinal/maestro/fresca) / Jerry S. (california), from lichess.org (github.com/lichess-org/lila)
+License: CC BY-NC-SA 4.0 https://creativecommons.org/licenses/by-nc-sa/4.0/
+Personal, non-commercial use.
